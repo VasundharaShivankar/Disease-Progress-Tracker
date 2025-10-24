@@ -2,7 +2,6 @@
 __pycache__/
 *.pyc
 *.pyo
-*.pyd
 .venv
 venv/
 env/
@@ -10,7 +9,7 @@ env/
 # Data and Models (Crucial for this project)
 data/
 models/
-*.h5          # Keras/TensorFlow model files (they are usually large)
+*.h5          # Keras/TensorFlow model files
 *.pth         # PyTorch model files
 *.onnx
 
