@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv
+venv/
+env/
+
+# Data and Models (Crucial for this project)
+data/
+models/
+*.h5          # Keras/TensorFlow model files (they are usually large)
+*.pth         # PyTorch model files
+*.onnx
+
+# Operating System Files
+.DS_Store    # Mac
+Thumbs.db    # Windows
+
+# Environment/Logging
+.vscode/
+.idea/
+nohup.out
+logs/
