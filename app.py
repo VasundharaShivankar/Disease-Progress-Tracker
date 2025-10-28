@@ -210,13 +210,26 @@ class SkinTrackerApp:
 
     def show_visualization(self, img_past, img_new, mask_past, mask_new):
         """Displays the masked image comparison using Matplotlib."""
-        
+
         # Overlay the masks on the images for visual verification
         img_past_masked = cv2.bitwise_and(img_past, img_past, mask=mask_past)
         img_new_masked = cv2.bitwise_and(img_new, img_new, mask=mask_new)
-        
+
+        # Resize all images to the same height (300 pixels) to ensure compatibility for hstack
+        target_height = 300
+        def resize_to_height(img, height):
+            h, w = img.shape[:2]
+            aspect_ratio = w / h
+            new_w = int(height * aspect_ratio)
+            return cv2.resize(img, (new_w, height), interpolation=cv2.INTER_LINEAR)
+
+        img_past_resized = resize_to_height(img_past, target_height)
+        img_new_resized = resize_to_height(img_new, target_height)
+        img_past_masked_resized = resize_to_height(img_past_masked, target_height)
+        img_new_masked_resized = resize_to_height(img_new_masked, target_height)
+
         # Combine and convert to RGB for Matplotlib display
-        combined_image = np.hstack((img_past, img_new, img_past_masked, img_new_masked))
+        combined_image = np.hstack((img_past_resized, img_new_resized, img_past_masked_resized, img_new_masked_resized))
         combined_image_rgb = cv2.cvtColor(combined_image, cv2.COLOR_BGR2RGB)
 
         plt.figure(figsize=(25, 12))

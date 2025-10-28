@@ -7,85 +7,110 @@ from tensorflow.keras.models import load_model
 # --- 1. CONFIGURATION ---
 PAST_IMAGE_PATH = 'data/past_lesion.jpeg'
 NEW_IMAGE_PATH = 'data/new_lesion.jpeg'
-MODEL_PATH = 'models/segmentation_model.h5'
 INPUT_SIZE = (256, 256) # Standard size for many U-Net models
 
-# Global variable to store the loaded model
+# --- NEW: Model Path Dictionary ---
+MODEL_PATHS = {
+    "Skin Lesion (Generic/Acne)": 'models/lesion_segmentation_model.h5',
+    "Nail Psoriasis": 'models/nail_psoriasis_model.h5',
+    "Dermatitis / Eczema": 'models/dermatitis_model.h5',
+    "Stevens-Johnson Syndrome (SJS)": 'models/sjs_model.h5'
+}
+
+# Global dictionary to store loaded models (to prevent re-loading)
+segmentation_models = {}
+
+# The original 'segmentation_model' global is now obsolete, but kept as 'None' if unused.
 segmentation_model = None
 
-def load_segmentation_model():
-    """Loads the pre-trained Keras model from the file system."""
-    global segmentation_model
-    
-    # Check 1: Check if the file exists before attempting the resource-intensive load
-    if not os.path.exists(MODEL_PATH):
-        print(f"[STATUS] Model file not found at: {MODEL_PATH}")
-        print("[STATUS] Proceeding with disease-specific segmentation fallbacks.")
+def load_segmentation_model(disease):
+    """
+    Loads the correct pre-trained Keras model for the selected disease.
+    """
+    global segmentation_models
+    model_path = MODEL_PATHS.get(disease)
+
+    if model_path is None:
+        print(f"[ERROR] No model path defined for disease: {disease}")
         return None
 
-    # Check 2: Load only if not already loaded and file exists
-    if segmentation_model is None:
-        try:
-            print(f"[STATUS] Model file found. Attempting to load model...")
-            # Set compile=False if you only need inference and not training/compiling
-            segmentation_model = load_model(MODEL_PATH, compile=False)
-            print("[STATUS] Model loaded successfully.")
-        except Exception as e:
-            # Handles errors like corrupted file or incorrect format
-            print(f"[ERROR] Failed to load model: {e}")
-            print("[STATUS] Proceeding with disease-specific segmentation fallbacks.")
-            return None
-            
-    return segmentation_model
+    # Check 1: Check if the model is already loaded
+    if disease in segmentation_models:
+        print(f"[STATUS] Model for {disease} already loaded.")
+        return segmentation_models[disease]
 
-def segment_lesion(image, disease="Skin Lesion (Generic/Acne)"): # <-- ADD disease argument
+    # Check 2: Check if the model file exists
+    if not os.path.exists(model_path):
+        print(f"[STATUS] Model file not found at: {model_path}")
+        print(f"[STATUS] Proceeding with {disease}-specific fallback.")
+        return None
+
+    # Check 3: Load the model
+    try:
+        print(f"[STATUS] Attempting to load model for {disease} from {model_path}...")
+        # Load only if not already loaded and file exists
+        model = load_model(model_path, compile=False)
+        segmentation_models[disease] = model
+        print(f"[STATUS] Model for {disease} loaded successfully.")
+        return model
+    except Exception as e:
+        print(f"[ERROR] Failed to load model for {disease}: {e}")
+        print(f"[STATUS] Proceeding with {disease}-specific fallback.")
+        return None
+
+def segment_lesion(image, disease="Skin Lesion (Generic/Acne)"):
     """
     Segmentation function using either the Deep Learning model or a Disease-specific fallback.
-    
+
     RETURNS: (mask_image, lesion_count)
     """
-    model = load_segmentation_model()
+    # Load the MODEL SPECIFIC to the selected disease
+    model = load_segmentation_model(disease)
 
     if model is not None:
-        # --- DEEP LEARNING SEGMENTATION PATH ---
-        print("Using Deep Learning Segmentation.")
-        resized_img = cv2.resize(image, INPUT_SIZE)
-        rgb_img = cv2.cvtColor(resized_img, cv2.COLOR_BGR2RGB)
-        
-        # Normalize and prepare input batch
-        input_data = np.expand_dims(rgb_img, axis=0) / 255.0
+        try:
+            # --- DEEP LEARNING SEGMENTATION PATH ---
+            print(f"Using Deep Learning Segmentation for: {disease}.")
+            resized_img = cv2.resize(image, INPUT_SIZE)
+            rgb_img = cv2.cvtColor(resized_img, cv2.COLOR_BGR2RGB)
 
-        # Prediction
-        prediction = model.predict(input_data, verbose=0)[0] 
+            # Normalize and prepare input batch
+            input_data = np.expand_dims(rgb_img, axis=0) / 255.0
 
-        # Convert probability map to binary mask
-        mask = (prediction > 0.5).astype(np.uint8) 
-        
-        # Resize mask back to original size
-        original_size = (image.shape[1], image.shape[0])
-        final_mask = cv2.resize(mask, original_size, interpolation=cv2.INTER_NEAREST)
-        
-        # Scale mask back to 0-255
-        return final_mask * 255, 0 
-        
-    else:
-        # --- DISEASE-SPECIFIC FALLBACK PATH ---
-        if disease == "Nail Psoriasis":
-            print("Using NAIL PSORIASIS specialized fallback.")
-            mask, count = nail_psoriasis_fallback(image)
-        
-        elif disease in ["Dermatitis / Eczema", "Stevens-Johnson Syndrome (SJS)"]:
-            print(f"Using DIFFUSE LESION (Dermatitis/SJS) fallback for {disease}.")
-            mask, count = diffuse_lesion_fallback(image)
-        
-        else: # Default: "Skin Lesion (Generic/Acne)"
-            print("Using SKIN LESION (GENERIC) fallback.")
-            mask, count = generic_lesion_fallback(image)
-            
-        return mask, count
+            # Prediction
+            prediction = model.predict(input_data, verbose=0)[0]
+
+            # Convert probability map to binary mask
+            # Ensure prediction output is 1 channel for mask conversion
+            mask = (prediction[..., 0] > 0.5).astype(np.uint8)
+
+            # Resize mask back to original size
+            original_size = (image.shape[1], image.shape[0])
+            final_mask = cv2.resize(mask, original_size, interpolation=cv2.INTER_NEAREST)
+
+            # Scale mask back to 0-255. Return 0 for count as the ML model output doesn't include individual lesion counts
+            return final_mask * 255, 0
+
+        except Exception as e:
+            print(f"[ERROR] Prediction failed for {disease}: {e}. Falling back to rule-based segmentation.")
+            # Fall back to rule-based if prediction fails
+
+    # --- DISEASE-SPECIFIC FALLBACK PATH ---
+    print(f"Using rule-based segmentation fallback for: {disease}.")
+
+    if disease == "Nail Psoriasis":
+        mask, count = nail_psoriasis_fallback(image)
+
+    elif disease in ["Dermatitis / Eczema", "Stevens-Johnson Syndrome (SJS)"]:
+        mask, count = diffuse_lesion_fallback(image)
+
+    else: # Default: "Skin Lesion (Generic/Acne)"
+        mask, count = generic_lesion_fallback(image)
+
+    return mask, count
 
 # ---------------------------------------------------------------------
-# --- DISEASE-SPECIFIC FALLBACK IMPLEMENTATIONS ---
+# --- DISEASE-SPECIFIC FALLBACK IMPLEMENTATIONS (No changes needed) ---
 # ---------------------------------------------------------------------
 
 def generic_lesion_fallback(image):
@@ -111,36 +136,48 @@ def generic_lesion_fallback(image):
 
 def nail_psoriasis_fallback(image):
     """
-    Analyzes nail plate for texture/pitting changes. Uses Adaptive Thresholding.
-    The COUNT metric here represents the number of detected pits/discolored spots.
+    Analyzes for psoriasis lesions, including red patches and pitting/texture changes.
+    Combines color-based detection for inflamed areas with texture analysis for pits.
+    The COUNT metric represents the number of detected lesions/pits.
     """
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    
-    # Enhance local contrast (good for finding pits/texture)
-    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
-    enhanced = clahe.apply(gray)
-    
-    # Adaptive Thresholding to find pits (darker areas relative to neighbors)
-    thresh = cv2.adaptiveThreshold(enhanced, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
-                                   cv2.THRESH_BINARY_INV, 25, 5)
+    # 1. Color-based detection for red/inflamed patches (common in psoriasis)
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    lower_red1 = np.array([0, 40, 40])
+    upper_red1 = np.array([15, 255, 255])
+    lower_red2 = np.array([165, 40, 40])
+    upper_red2 = np.array([180, 255, 255])
+    color_mask = cv2.inRange(hsv, lower_red1, upper_red1) + cv2.inRange(hsv, lower_red2, upper_red2)
 
-    # Noise reduction
-    kernel = np.ones((3,3),np.uint8)
-    mask = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=1)
-    
-    # Find contours
-    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    pit_count = 0
-    final_mask = np.zeros(mask.shape, dtype=np.uint8)
-    
+    # Morphological operations to clean color mask
+    kernel = np.ones((5,5), np.uint8)
+    color_mask = cv2.morphologyEx(color_mask, cv2.MORPH_CLOSE, kernel, iterations=2)
+    color_mask = cv2.morphologyEx(color_mask, cv2.MORPH_OPEN, kernel, iterations=1)
+
+    # 2. Texture-based detection for pits/discolored spots
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8,8))
+    enhanced = clahe.apply(gray)
+    thresh = cv2.adaptiveThreshold(enhanced, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                                   cv2.THRESH_BINARY_INV, 25, 2)
+    texture_mask = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=1)
+    texture_mask = cv2.morphologyEx(texture_mask, cv2.MORPH_CLOSE, kernel, iterations=1)
+
+    # 3. Combine color and texture masks (union for broader detection)
+    combined_mask = cv2.bitwise_or(color_mask, texture_mask)
+
+    # 4. Find contours in combined mask
+    contours, _ = cv2.findContours(combined_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    lesion_count = 0
+    final_mask = np.zeros(combined_mask.shape, dtype=np.uint8)
+
     for contour in contours:
         area = cv2.contourArea(contour)
-        # Filter by reasonable size for pits/spots
-        if 10 < area < 1000: 
+        # Filter for reasonable lesion sizes (pits or patches)
+        if 10 < area < 5000:
             cv2.drawContours(final_mask, [contour], -1, 255, thickness=cv2.FILLED)
-            pit_count += 1
+            lesion_count += 1
 
-    return final_mask, pit_count
+    return final_mask, lesion_count
 
 
 def diffuse_lesion_fallback(image):
