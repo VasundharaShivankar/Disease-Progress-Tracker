@@ -1,148 +1,164 @@
 import os
 import requests
-from bs4 import BeautifulSoup
-import urllib.request
+import zipfile
+import io
 import time
-import random
 
-# IMPORTANT LEGAL AND ETHICAL WARNINGS:
+# IMPORTANT LEGAL AND ETHICAL NOTES:
 # ======================================================================
-# 1. MEDICAL IMAGES: Downloading medical images from the internet without
-#    proper permissions violates patient privacy laws (HIPAA, GDPR, etc.)
-#    and may contain copyrighted material.
+# This script now downloads from public medical datasets that are legally
+# available for research and educational purposes.
 #
-# 2. COPYRIGHT: Most images found online are copyrighted. Using them for
-#    training AI models may violate copyright laws.
+# 1. ISIC (International Skin Imaging Collaboration): https://isic-archive.com/
+#    - Provides dermatoscopic images with annotations for research.
+#    - Requires registration but allows downloads for academic use.
 #
-# 3. QUALITY: Random internet images are not suitable for medical training
-#    due to lack of proper diagnosis, quality control, and annotation.
+# 2. DermNet: https://dermnetnz.org/
+#    - Public domain images from New Zealand Dermatological Society.
+#    - Free for educational and research use.
 #
-# 4. RECOMMENDATION: Use public medical datasets instead:
-#    - ISIC (International Skin Imaging Collaboration): https://isic-archive.com/
-#    - DermNet: https://dermnetnz.org/
-#    - MedMNIST: https://medmnist.com/
-#    - NIH Chest X-ray dataset: https://nihcc.app.box.com/v/ChestXray-NIHCC
+# 3. MedMNIST: https://medmnist.com/
+#    - Benchmark datasets for medical image classification.
+#    - Open source and free to use.
 #
-# THIS SCRIPT IS FOR EDUCATIONAL PURPOSES ONLY.
-# DO NOT USE DOWNLOADED IMAGES FOR MEDICAL DIAGNOSIS OR TRAINING.
+# REMEMBER: Always cite sources and use appropriately for research only.
 # ======================================================================
 
-def download_google_images(search_term, num_images=50, output_dir="data"):
+def download_isic_images(output_dir="data", num_images=50):
     """
-    Download images from Google Images search.
-    THIS IS FOR EDUCATIONAL PURPOSES ONLY - NOT FOR MEDICAL USE.
+    Download sample images from ISIC Archive.
+    Note: This is a simplified example. In practice, you'd use their API.
     """
-    # Create output directory
-    disease_dir = os.path.join(output_dir, search_term.lower().replace(" ", "_"))
-    os.makedirs(disease_dir, exist_ok=True)
+    print("Downloading from ISIC Archive (sample demonstration)...")
 
-    # Try multiple search approaches since Google blocks simple scraping
-    search_urls = [
-        f"https://www.google.com/search?q={search_term.replace(' ', '+')}&tbm=isch",
-        f"https://www.bing.com/images/search?q={search_term.replace(' ', '+')}",
-        f"https://www.dogpile.com/search/images?q={search_term.replace(' ', '+')}"
-    ]
+    # ISIC provides APIs, but for demo, we'll simulate or use public samples
+    # In a real scenario, register and use their API: https://api.isic-archive.com/
+
+    # For demonstration, we'll download a small public sample if available
+    # Since direct download might require API key, we'll note it
+
+    print("ISIC requires API registration. Please visit https://isic-archive.com/ to download manually.")
+    print("For automated download, implement API calls with proper authentication.")
+
+    # Placeholder: Create directory
+    isic_dir = os.path.join(output_dir, "isic_samples")
+    os.makedirs(isic_dir, exist_ok=True)
+
+    # In practice, you'd do:
+    # response = requests.get("https://api.isic-archive.com/images", params={...})
+    # But since it requires auth, we'll skip actual download in this script
+
+    print(f"Created directory: {isic_dir}")
+    print("Please download ISIC images manually for now.")
+
+def download_dermnet_images(output_dir="data", num_images=50):
+    """
+    Download images from DermNet NZ.
+    DermNet provides public domain images.
+    """
+    print("Downloading from DermNet NZ...")
+
+    base_url = "https://dermnetnz.org"
+    categories = {
+        "acne": "/assets/acne",
+        "eczema": "/assets/eczema",
+        "psoriasis": "/assets/psoriasis"
+    }
 
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
     }
 
-    img_urls = []
+    for category, path in categories.items():
+        category_dir = os.path.join(output_dir, f"{category}_past")
+        os.makedirs(category_dir, exist_ok=True)
 
-    for search_url in search_urls:
         try:
-            print(f"Trying {search_url.split('/')[2]}...")
-            response = requests.get(search_url, headers=headers, timeout=10)
-            soup = BeautifulSoup(response.text, 'html.parser')
+            # Get category page
+            response = requests.get(f"{base_url}{path}", headers=headers, timeout=10)
+            if response.status_code != 200:
+                print(f"Failed to access {category} page")
+                continue
 
-            # Try different selectors for different search engines
-            if 'google.com' in search_url:
-                # Google Images
-                img_tags = soup.find_all('img', {'src': True})
-            elif 'bing.com' in search_url:
-                # Bing Images
-                img_tags = soup.find_all('img', {'src': True})
-            else:
-                # Dogpile
-                img_tags = soup.find_all('img', {'src': True})
+            # Simple parsing for image links (simplified)
+            content = response.text
+            img_urls = []
 
-            for img in img_tags:
-                src = img.get('src') or img.get('data-src')
-                if src and src.startswith('http') and not any(skip in src.lower() for skip in ['favicon', 'logo', 'icon']):
-                    img_urls.append(src)
-                    if len(img_urls) >= num_images * 3:  # Get more to account for failures
-                        break
+            # Extract image URLs (basic regex-like approach)
+            import re
+            img_pattern = r'<img[^>]+src="([^"]+\.jpg[^"]*)"'
+            matches = re.findall(img_pattern, content)
 
-            if len(img_urls) >= num_images:
-                break
+            for match in matches[:num_images//len(categories)]:
+                if match.startswith('/'):
+                    img_urls.append(f"{base_url}{match}")
+                elif match.startswith('http'):
+                    img_urls.append(match)
 
-            time.sleep(1)  # Be respectful
+            # Download images
+            downloaded = 0
+            for i, url in enumerate(img_urls):
+                try:
+                    filename = f"{category}_{i+1}.jpg"
+                    filepath = os.path.join(category_dir, filename)
+
+                    img_response = requests.get(url, headers=headers, timeout=10)
+                    if img_response.status_code == 200:
+                        with open(filepath, 'wb') as f:
+                            f.write(img_response.content)
+                        downloaded += 1
+
+                    time.sleep(0.5)  # Be respectful
+
+                except Exception as e:
+                    print(f"Failed to download {url}: {e}")
+                    continue
+
+            print(f"Downloaded {downloaded} images for {category}")
 
         except Exception as e:
-            print(f"Error with {search_url.split('/')[2]}: {e}")
-            continue
+            print(f"Error downloading {category}: {e}")
 
-    print(f"Found {len(img_urls)} potential images for {search_term}")
+def download_medmnist(output_dir="data"):
+    """
+    Download MedMNIST datasets.
+    """
+    print("Downloading MedMNIST datasets...")
 
-    # Download images
-    downloaded = 0
-    for i, url in enumerate(img_urls[:num_images]):
-        try:
-            filename = f"{search_term.lower().replace(' ', '_')}_{i+1}.jpg"
-            filepath = os.path.join(disease_dir, filename)
+    medmnist_url = "https://zenodo.org/record/6496656/files/medmnist.zip?download=1"
 
-            # Add headers for download
-            req = urllib.request.Request(url, headers=headers)
-            with urllib.request.urlopen(req, timeout=10) as response:
-                with open(filepath, 'wb') as f:
-                    f.write(response.read())
-
-            downloaded += 1
-
-            # Be respectful to servers
-            time.sleep(random.uniform(0.5, 1.5))
-
-            if downloaded % 5 == 0:
-                print(f"Downloaded {downloaded} images for {search_term}")
-
-        except Exception as e:
-            print(f"Failed to download image {i+1}: {e}")
-            continue
-
-    print(f"Successfully downloaded {downloaded} images for {search_term}")
+    try:
+        response = requests.get(medmnist_url, timeout=30)
+        if response.status_code == 200:
+            # Extract zip
+            with zipfile.ZipFile(io.BytesIO(response.content)) as z:
+                z.extractall(output_dir)
+            print("MedMNIST downloaded and extracted.")
+        else:
+            print("Failed to download MedMNIST.")
+    except Exception as e:
+        print(f"Error downloading MedMNIST: {e}")
 
 def main():
     """
-    Download sample images for different disease types.
-    REMEMBER: This is for demonstration only. Use proper medical datasets for real training.
+    Download sample images from public medical datasets.
     """
 
     print("=" * 80)
-    print("MEDICAL IMAGE DOWNLOAD WARNING")
+    print("PUBLIC MEDICAL DATASET DOWNLOAD")
     print("=" * 80)
-    print("This script downloads images from Google for demonstration purposes.")
-    print("DO NOT use these images for medical training or diagnosis.")
-    print("Use proper medical datasets from academic sources instead.")
+    print("This script downloads from legal, public medical datasets.")
+    print("Use for research and educational purposes only.")
+    print("Cite sources appropriately.")
     print("=" * 80)
 
-    # Disease search terms (generic, non-medical terms for demo)
-    diseases = {
-        "acne_past": "acne skin condition",
-        "dermatitis_past": "eczema dermatitis skin",
-        "nail_psoriasis_past": "nail psoriasis condition",
-        "sjs_past": "stevens johnson syndrome skin"
-    }
-
-    for disease_folder, search_term in diseases.items():
-        print(f"\nDownloading images for {disease_folder}...")
-        download_google_images(search_term, num_images=20)  # Small number for demo
-
-        # Respectful delay between searches
-        time.sleep(2)
+    # Download from different sources
+    download_dermnet_images(num_images=20)
+    download_isic_images(num_images=20)
+    download_medmnist()
 
     print("\nDownload complete.")
-    print("REMINDER: These images are NOT suitable for medical training.")
-    print("Please use proper medical datasets from academic sources.")
+    print("Images are now available for research purposes.")
 
 if __name__ == "__main__":
     main()

@@ -21,34 +21,80 @@ DISEASES = {
     "Stevens-Johnson Syndrome (SJS)": "data/sjs_past"
 }
 
+def generate_synthetic_data(num_samples=100, img_size=IMG_SIZE):
+    """
+    Generate synthetic images and masks for demonstration when real data is unavailable.
+    """
+    images = []
+    masks = []
+
+    for i in range(num_samples):
+        # Generate synthetic skin-like image
+        img = np.random.randint(200, 255, (img_size[0], img_size[1], 3), dtype=np.uint8)
+
+        # Add some random lesions (dark spots)
+        num_lesions = np.random.randint(1, 5)
+        for _ in range(num_lesions):
+            center_x = np.random.randint(50, img_size[0]-50)
+            center_y = np.random.randint(50, img_size[1]-50)
+            radius = np.random.randint(10, 30)
+
+            # Draw lesion
+            cv2.circle(img, (center_x, center_y), radius, (100, 80, 70), -1)
+
+        images.append(img)
+
+        # Create corresponding mask
+        mask = np.zeros((img_size[0], img_size[1]), dtype=np.uint8)
+        # In real scenario, this would be ground truth
+        # For synthetic, create simple circular masks
+        for _ in range(num_lesions):
+            center_x = np.random.randint(50, img_size[0]-50)
+            center_y = np.random.randint(50, img_size[1]-50)
+            radius = np.random.randint(10, 30)
+            cv2.circle(mask, (center_x, center_y), radius, 255, -1)
+
+        masks.append(mask)
+
+    return np.array(images), np.array(masks)
+
 def load_images_from_folder(folder_path, img_size=IMG_SIZE):
     """
     Load all images from a folder and create binary masks.
-    For now, we'll create synthetic masks based on basic thresholding.
-    In a real scenario, you'd have ground truth masks.
+    If no real data exists, generate synthetic data for demonstration.
     """
     images = []
     masks = []
 
     if not os.path.exists(folder_path):
-        print(f"Folder {folder_path} does not exist. Skipping...")
-        return np.array(images), np.array(masks)
+        print(f"Folder {folder_path} does not exist. Generating synthetic data...")
+        return generate_synthetic_data(num_samples=50, img_size=img_size)
 
-    for filename in os.listdir(folder_path):
-        if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
-            img_path = os.path.join(folder_path, filename)
-            img = cv2.imread(img_path)
-            if img is not None:
-                img = cv2.resize(img, img_size)
-                img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-                images.append(img)
+    files = [f for f in os.listdir(folder_path) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
+    if len(files) == 0:
+        print(f"No images found in {folder_path}. Generating synthetic data...")
+        return generate_synthetic_data(num_samples=50, img_size=img_size)
 
-                # Create synthetic mask using basic segmentation
-                # This is a placeholder - in practice you'd load ground truth masks
-                gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-                _, mask = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
-                mask = cv2.resize(mask, img_size)
-                masks.append(mask)
+    for filename in files:
+        img_path = os.path.join(folder_path, filename)
+        img = cv2.imread(img_path)
+        if img is not None:
+            img = cv2.resize(img, img_size)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            images.append(img)
+
+            # Create synthetic mask using basic segmentation
+            # This is a placeholder - in practice you'd load ground truth masks
+            gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+            _, mask = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
+            mask = cv2.resize(mask, img_size)
+            masks.append(mask)
+
+    if len(images) < 10:
+        print(f"Only {len(images)} images found. Supplementing with synthetic data...")
+        synth_images, synth_masks = generate_synthetic_data(num_samples=50, img_size=img_size)
+        images = np.concatenate([images, synth_images])
+        masks = np.concatenate([masks, synth_masks])
 
     return np.array(images), np.array(masks)
 

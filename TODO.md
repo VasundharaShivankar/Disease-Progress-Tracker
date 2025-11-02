@@ -21,6 +21,9 @@
 - [x] Fixed progress reporting in app.py to cap percentages at 99% for display, showing percentages only up to 99%.
 - [x] Enhanced generic.py for better acne/lesion detection with contour-based counting.
 - [x] Enhanced diffuse.py for improved dermatitis/eczema/SJS segmentation using multiple color spaces and advanced morphology.
+- [ ] Updated download_images.py to use public medical datasets (ISIC, DermNet) instead of illegal scraping.
+- [ ] Updated train_models.py to handle missing data gracefully with synthetic data generation.
+- [ ] Created basic analysis function in src/spin_analysis.py.
 
 ## Dependent Files
 - app.py (primary fixes needed)
