@@ -171,19 +171,38 @@ class SkinTrackerApp:
             report.write("\n================ PROGRESS SUMMARY ================\n")
 
             # Area Progress
-            if area_past > 0:
+            if area_past > 10:  # Threshold to avoid division by very small numbers
                 percent_area_change = ((area_new - area_past) / area_past) * 100
+                # Cap percentage at 99% for display
+                if percent_area_change > 99:
+                    percent_area_change = 99
+                elif percent_area_change < -99:
+                    percent_area_change = -99
                 status_area, color_area = self._get_progress_status(percent_area_change)
                 report.write(f"Area Change: {status_area} by: {abs(percent_area_change):.2f}%\n")
-            
+            elif area_past > 0:
+                if area_new == 0:
+                    report.write("Area Change: FULL RECOVERY (No detectable area in new image)\n")
+                else:
+                    report.write("Area Change: REGRESSION (New area detected)\n")
+            else:
+                if area_new > 0:
+                    report.write("Area Change: REGRESSION (New area detected)\n")
+                else:
+                    report.write("Status: No detectable lesions in either image.\n")
+
             # Count Progress
             if count_past > 0:
                 percent_count_change = ((count_new - count_past) / count_past) * 100
+                # Cap percentage at 99% for display
+                if percent_count_change > 99:
+                    percent_count_change = 99
+                elif percent_count_change < -99:
+                    percent_count_change = -99
                 status_count, color_count = self._get_progress_status(percent_count_change)
                 report.write(f"Count Change: {status_count} by: {abs(percent_count_change):.2f}%\n")
-            
-            elif area_past == 0:
-                report.write("Status: Could not find a reliable lesion baseline.\n")
+            elif count_past == 0 and count_new > 0:
+                report.write("Count Change: REGRESSION (New features detected)\n")
 
             report.write("==================================================\n")
 

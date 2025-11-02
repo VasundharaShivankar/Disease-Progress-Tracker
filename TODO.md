@@ -17,6 +17,10 @@
 - [ ] Verify progress calculation and result display.
 - [ ] Check visualization (matplotlib plots).
 - [ ] Confirm no runtime errors during full workflow.
+- [x] Enhanced nail_psoriasis.py for better detection of pitting, discoloration, and features in nail psoriasis images.
+- [x] Fixed progress reporting in app.py to cap percentages at 99% for display, showing percentages only up to 99%.
+- [x] Enhanced generic.py for better acne/lesion detection with contour-based counting.
+- [x] Enhanced diffuse.py for improved dermatitis/eczema/SJS segmentation using multiple color spaces and advanced morphology.
 
 ## Dependent Files
 - app.py (primary fixes needed)
@@ -29,3 +33,4 @@
 - If issues arise, debug and fix iteratively.
 - Ensure fallbacks work for all disease types.
 - Test with different disease selections.
+- Test nail psoriasis analysis with actual nail images to verify improved accuracy.
