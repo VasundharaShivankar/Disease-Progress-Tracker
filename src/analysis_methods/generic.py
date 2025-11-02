@@ -24,7 +24,7 @@ def generic_lesion_fallback(image):
     # Enhanced Morphological Operations for better lesion detection
     kernel = np.ones((3,3), np.uint8)
     mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel, iterations=1)  # Remove noise
-    mask = cv2.dilate(mask, kernel, iterations=2)  # Connect nearby lesions
+    mask = cv2.dilate(mask, kernel, iterations=1)  # Connect nearby lesions (reduced iterations)
     mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=1)  # Fill gaps
 
     # Contour detection for lesion counting
@@ -35,7 +35,7 @@ def generic_lesion_fallback(image):
     for contour in contours:
         area = cv2.contourArea(contour)
         # Filter by reasonable size for acne lesions (adjust based on image scale)
-        if 50 < area < 10000:  # Typical acne lesion size range
+        if 100 < area < 5000:  # More conservative size range to avoid false positives
             cv2.drawContours(final_mask, [contour], -1, 255, thickness=cv2.FILLED)
             lesion_count += 1
 

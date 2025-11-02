@@ -29,20 +29,20 @@ def nail_psoriasis_fallback(image):
     color_mask = cv2.bitwise_or(yellow_mask, red_mask)
 
     # Morphological operations to refine color mask
-    kernel = np.ones((5,5), np.uint8)
-    color_mask = cv2.morphologyEx(color_mask, cv2.MORPH_CLOSE, kernel, iterations=2)
+    kernel = np.ones((3,3), np.uint8)
+    color_mask = cv2.morphologyEx(color_mask, cv2.MORPH_CLOSE, kernel, iterations=1)
     color_mask = cv2.erode(color_mask, kernel, iterations=1)
 
     # 2. Detect pitting/texture changes
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # Enhance local contrast (CLAHE for pits)
-    clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8,8))
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
     enhanced = clahe.apply(gray)
 
     # Adaptive Thresholding for pits (darker spots)
     thresh = cv2.adaptiveThreshold(enhanced, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-                                   cv2.THRESH_BINARY_INV, 21, 2)  # Adjusted params for sensitivity
+                                   cv2.THRESH_BINARY_INV, 15, 3)  # More sensitive for pits
 
     # Noise reduction for pit mask
     pit_mask = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=1)
@@ -61,7 +61,7 @@ def nail_psoriasis_fallback(image):
     for contour in contours:
         area = cv2.contourArea(contour)
         # Filter contours by size (pits/discoloration patches)
-        if 20 < area < 5000:  # Adjusted range for nail features
+        if 50 < area < 3000:  # More conservative range for nail features
             cv2.drawContours(final_mask, [contour], -1, 255, thickness=cv2.FILLED)
             feature_count += 1
 

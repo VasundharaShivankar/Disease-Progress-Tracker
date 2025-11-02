@@ -158,7 +158,9 @@ def train_model_for_disease(disease_name, data_folder):
 
     plt.tight_layout()
     os.makedirs('models', exist_ok=True)
-    plt.savefig(f'models/{disease_name.lower().replace(" ", "_")}_training_history.png')
+    # Fix filename to avoid special characters
+    safe_filename = disease_name.lower().replace(' ', '_').replace('(', '').replace(')', '').replace('/', '_')
+    plt.savefig(f'models/{safe_filename}_training_history.png')
     plt.close()  # Close the figure to avoid display issues
 
     return model

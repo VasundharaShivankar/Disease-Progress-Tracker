@@ -171,25 +171,38 @@ class SkinTrackerApp:
             report.write("\n================ PROGRESS SUMMARY ================\n")
 
             # Area Progress
-            if area_past > 10:  # Threshold to avoid division by very small numbers
+            if area_past > 100:  # Higher threshold to avoid false positives from noise
                 percent_area_change = ((area_new - area_past) / area_past) * 100
-                # Cap percentage at 99% for display
-                if percent_area_change > 99:
-                    percent_area_change = 99
-                elif percent_area_change < -99:
-                    percent_area_change = -99
+                # Cap percentage at reasonable limits
+                if percent_area_change > 500:
+                    percent_area_change = 500  # Cap at 500% increase
+                elif percent_area_change < -95:
+                    percent_area_change = -95  # Cap at 95% decrease
                 status_area, color_area = self._get_progress_status(percent_area_change)
                 report.write(f"Area Change: {status_area} by: {abs(percent_area_change):.2f}%\n")
+            elif area_past > 50:  # Medium threshold
+                if area_new == 0:
+                    report.write("Area Change: SIGNIFICANT IMPROVEMENT (No detectable area in new image)\n")
+                elif area_new < area_past * 0.1:  # 90% reduction
+                    report.write("Area Change: MAJOR IMPROVEMENT (90%+ area reduction)\n")
+                else:
+                    percent_area_change = ((area_new - area_past) / area_past) * 100
+                    status_area, color_area = self._get_progress_status(percent_area_change)
+                    report.write(f"Area Change: {status_area} by: {abs(percent_area_change):.2f}%\n")
             elif area_past > 0:
                 if area_new == 0:
                     report.write("Area Change: FULL RECOVERY (No detectable area in new image)\n")
+                elif area_new > area_past * 2:  # Significant increase
+                    report.write("Area Change: SIGNIFICANT REGRESSION (Area doubled or more)\n")
                 else:
-                    report.write("Area Change: REGRESSION (New area detected)\n")
+                    report.write("Area Change: MINOR CHANGES (Small area variations detected)\n")
             else:
-                if area_new > 0:
-                    report.write("Area Change: REGRESSION (New area detected)\n")
+                if area_new > 100:  # Significant new area detected
+                    report.write("Area Change: NEW LESIONS DETECTED (Significant area in new image)\n")
+                elif area_new > 0:
+                    report.write("Area Change: MINOR NEW FEATURES (Small area detected in new image)\n")
                 else:
-                    report.write("Status: No detectable lesions in either image.\n")
+                    report.write("Status: No significant lesions detected in either image.\n")
 
             # Count Progress
             if count_past > 0:
