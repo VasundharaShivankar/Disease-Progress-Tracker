@@ -16,12 +16,12 @@ PAST_IMAGE_PATH = 'data/past_lesion.jpeg'
 NEW_IMAGE_PATH = 'data/new_lesion.jpeg'
 INPUT_SIZE = (256, 256) 
 
-# --- Model Path Dictionary (Remains the same) ---
+# --- Model Path Dictionary (Updated to match train_models.py filenames) ---
 MODEL_PATHS = {
-    "Skin Lesion (Generic/Acne)": 'models/lesion_segmentation_model.h5',
+    "Skin Lesion (Generic/Acne)": 'models/skin_lesion_generic_acne_model.h5',
     "Nail Psoriasis": 'models/nail_psoriasis_model.h5',
-    "Dermatitis / Eczema": 'models/dermatitis_model.h5',
-    "Stevens-Johnson Syndrome (SJS)": 'models/sjs_model.h5'
+    "Dermatitis / Eczema": 'models/dermatitis_eczema_model.h5',
+    "Stevens-Johnson Syndrome (SJS)": 'models/stevens_johnson_syndrome_model.h5'
 }
 segmentation_models = {}
 segmentation_model = None

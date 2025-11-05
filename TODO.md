@@ -1,8 +1,6 @@
-# TODO: Integrate Scoliosis Analysis for Before/After Images
+# TODO: Make Model Show Change for All Skin-Related Issues
 
 ## Tasks
-- [x] Implement scoliosis_fallback function in src/spin_analysis.py using edge detection, contour finding, and curvature calculation for physical scoliosis images.
-- [x] Add "Scoliosis" to the diseases list in app.py.
-- [x] Import scoliosis_fallback in src/skin_analysis.py and add case for "Scoliosis" in segment_lesion function.
-- [x] Test integration with sample scoliosis images to ensure curvature detection and progress tracking work.
-- [x] Update any necessary documentation or comments for the new scoliosis analysis.
+- [x] Update MODEL_PATHS in src/skin_analysis.py to match train_models.py filenames
+- [ ] Run train_models.py to train and save segmentation models for all skin diseases
+- [ ] Test the app with sample images for skin diseases (Skin Lesion, Nail Psoriasis, Dermatitis, SJS) to verify models load and show accurate changes
