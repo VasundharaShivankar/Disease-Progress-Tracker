@@ -36,7 +36,7 @@ class SkinTrackerApp:
         self.new_image_path = None
 
         # --- Define Diseases and Selection Variable ---
-        self.diseases = ["Skin Lesion (Generic/Acne)", "Nail Psoriasis", "Dermatitis / Eczema", "Stevens-Johnson Syndrome (SJS)"]
+        self.diseases = ["Skin Lesion (Generic/Acne)", "Nail Psoriasis", "Dermatitis / Eczema", "Stevens-Johnson Syndrome (SJS)", "Scoliosis"]
         self.selected_disease = tk.StringVar(master)
         self.selected_disease.set(self.diseases[0]) # Default value is Generic Lesion
 
@@ -162,7 +162,9 @@ class SkinTrackerApp:
             report.write(f"| PAST: {os.path.basename(self.past_image_path)} | NEW: {os.path.basename(self.new_image_path)} |\n") 
             report.write("-----------------------------------------------------------\n")
 
-            if count_past > 0 or count_new > 0:
+            if disease_type == "Scoliosis":
+                report.write(f"Curvature Metric (Past/New): {count_past} / {count_new}\n")
+            elif count_past > 0 or count_new > 0:
                 report.write(f"Lesion Count (Past/New): {count_past} / {count_new}\n")
             
             report.write(f"Lesion Area (Past/New): {area_past} / {area_new} pixels\n")
@@ -204,8 +206,15 @@ class SkinTrackerApp:
                 else:
                     report.write("Status: No significant lesions detected in either image.\n")
 
-            # Count Progress
-            if count_past > 0:
+            # Count/Curvature Progress
+            if disease_type == "Scoliosis":
+                if count_past > 0 or count_new > 0:
+                    percent_curvature_change = ((count_new - count_past) / max(count_past, 1)) * 100
+                    status_curvature, color_curvature = self._get_progress_status(percent_curvature_change)
+                    report.write(f"Curvature Change: {status_curvature} by: {abs(percent_curvature_change):.2f}%\n")
+                else:
+                    report.write("Curvature Change: NO CHANGE (No curvature detected)\n")
+            elif count_past > 0:
                 percent_count_change = ((count_new - count_past) / count_past) * 100
                 # Cap percentage at 99% for display
                 if percent_count_change > 99:

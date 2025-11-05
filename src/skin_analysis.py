@@ -8,6 +8,7 @@ from tensorflow.keras.models import load_model
 from src.analysis_methods.generic import generic_lesion_fallback
 from src.analysis_methods.nail_psoriasis import nail_psoriasis_fallback
 from src.analysis_methods.diffuse import diffuse_lesion_fallback
+from src.spin_analysis import scoliosis_fallback
 # ---------------------------------------------------------------
 
 # --- 1. CONFIGURATION ---
@@ -89,10 +90,13 @@ def segment_lesion(image, disease="Skin Lesion (Generic/Acne)"):
         
         if disease == "Nail Psoriasis":
             mask, count = nail_psoriasis_fallback(image)
-        
+
         elif disease in ["Dermatitis / Eczema", "Stevens-Johnson Syndrome (SJS)"]:
             mask, count = diffuse_lesion_fallback(image)
-        
+
+        elif disease == "Scoliosis":
+            mask, count = scoliosis_fallback(image)
+
         else: # Default: "Skin Lesion (Generic/Acne)"
             mask, count = generic_lesion_fallback(image)
             
