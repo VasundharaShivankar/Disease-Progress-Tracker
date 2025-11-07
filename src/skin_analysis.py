@@ -20,8 +20,9 @@ INPUT_SIZE = (256, 256)
 MODEL_PATHS = {
     "Skin Lesion (Generic/Acne)": 'models/skin_lesion_generic_acne_model.h5',
     "Nail Psoriasis": 'models/nail_psoriasis_model.h5',
-    "Dermatitis / Eczema": 'models/dermatitis_eczema_model.h5',
-    "Stevens-Johnson Syndrome (SJS)": 'models/stevens_johnson_syndrome_model.h5'
+    "Dermatitis / Eczema": 'models/dermatitis___eczema_model.h5',
+    "Stevens-Johnson Syndrome (SJS)": 'models/stevens-johnson_syndrome_sjs_model.h5',
+    "Psoriasis": 'models/nail_psoriasis_model.h5'  # Using nail psoriasis model for psoriasis
 }
 segmentation_models = {}
 segmentation_model = None
@@ -96,6 +97,9 @@ def segment_lesion(image, disease="Skin Lesion (Generic/Acne)"):
 
         elif disease == "Scoliosis":
             mask, count = scoliosis_fallback(image)
+
+        elif disease == "Psoriasis":
+            mask, count = nail_psoriasis_fallback(image)  # Using nail psoriasis fallback for psoriasis
 
         else: # Default: "Skin Lesion (Generic/Acne)"
             mask, count = generic_lesion_fallback(image)
