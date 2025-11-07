@@ -22,3 +22,14 @@ Thumbs.db    # Windows
 .idea/
 nohup.out
 logs/
+
+# Sensitive Files
+.env
+.env.local
+.env.production
+.env.staging
+
+# MongoDB and Database Credentials
+*.db
+*.sqlite
+*.sqlite3
