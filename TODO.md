@@ -1,6 +1,7 @@
-# TODO: Make Model Show Change for All Skin-Related Issues
+# TODO: Improve MongoDB Connection in upload_to_mongo.py
 
-## Tasks
-- [x] Update MODEL_PATHS in src/skin_analysis.py to match train_models.py filenames
-- [ ] Run train_models.py to train and save segmentation models for all skin diseases
-- [ ] Test the app with sample images for skin diseases (Skin Lesion, Nail Psoriasis, Dermatitis, SJS) to verify models load and show accurate changes
+- [x] Update upload_to_mongo.py to use environment variables for CONNECTION_STRING and DATABASE_NAME
+- [x] Add checks for missing environment variables and raise appropriate errors
+- [x] Add error handling for MongoDB connection failures
+- [x] Test the updated script (ensure env vars are set)
+- [x] Verify connection in MongoDB Compass using the connection string

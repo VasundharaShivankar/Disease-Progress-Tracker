@@ -5,10 +5,20 @@ from pymongo import MongoClient
 import base64
 from io import BytesIO
 from PIL import Image
+from dotenv import load_dotenv
 
-# MongoDB Atlas connection
-CONNECTION_STRING = "mongodb+srv://vasundharashivankar179:DyRcGbNUJtRWjVPk@cluster0.dvkg9pv.mongodb.net/"
-DATABASE_NAME = "nutritional_assessment"
+# Load environment variables from .env file
+load_dotenv()
+
+# Load environment variables for MongoDB Atlas connection
+CONNECTION_STRING = os.environ.get("MONGODB_CONNECTION_STRING")
+DATABASE_NAME = os.environ.get("MONGODB_DATABASE_NAME")
+
+# Check if environment variables are set
+if not CONNECTION_STRING:
+    raise ValueError("MONGODB_CONNECTION_STRING environment variable is not set.")
+if not DATABASE_NAME:
+    raise ValueError("MONGODB_DATABASE_NAME environment variable is not set.")
 
 # Disease mappings to collections
 DISEASE_COLLECTIONS = {
@@ -41,7 +51,15 @@ def create_synthetic_mask(image_path):
 
 def upload_folder_to_mongo(folder_path, collection_name, category):
     """Upload all images from a folder to MongoDB collection."""
-    client = MongoClient(CONNECTION_STRING)
+    try:
+        client = MongoClient(CONNECTION_STRING)
+        # Test the connection
+        client.admin.command('ping')
+        print("Successfully connected to MongoDB Atlas.")
+    except Exception as e:
+        print(f"Failed to connect to MongoDB Atlas: {e}")
+        return
+
     db = client[DATABASE_NAME]
     collection = db[collection_name]
 
