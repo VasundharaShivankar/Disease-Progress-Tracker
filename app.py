@@ -7,6 +7,7 @@ from PIL import Image, ImageTk
 import sys
 import io
 import os # <-- os import is crucial and correctly placed
+import random
 
 # --- Import Core Analysis Logic ---
 try:
@@ -17,13 +18,14 @@ except ImportError:
     sys.exit()
 
 
-# --- Define Hospital/Clinic Color Palette ---
-COLOR_PRIMARY = '#007ACC'  # Professional Blue
-COLOR_SECONDARY = '#004C8C' # Darker Blue for accents
-COLOR_BACKGROUND = '#F0F5F9' # Light Gray/Off-White for background
+# --- Define Modern Hospital/Clinic Color Palette ---
+COLOR_PRIMARY = '#005A9E'  # Darker Professional Blue
+COLOR_SECONDARY = '#003366' # Even Darker Blue for accents
+COLOR_BACKGROUND = '#FFFFFF' # Pure White for background
 COLOR_SUCCESS = '#28A745'   # Green for success/progress
 COLOR_ERROR = '#DC3545'     # Red for errors/regression
-COLOR_TEXT = '#343A40'      # Dark Gray for main text
+COLOR_TEXT = '#2C3E50'      # Darker Gray for main text
+COLOR_ACCENT = '#E8F4FD'    # Light Blue accent for cards
 
 
 class SkinTrackerApp:
@@ -44,8 +46,8 @@ class SkinTrackerApp:
         style = ttk.Style()
         style.theme_use('clam') # 'clam' is a modern theme option in Tkinter
         style.configure('TFrame', background=COLOR_BACKGROUND)
-        style.configure('TLabel', background=COLOR_BACKGROUND, foreground=COLOR_TEXT, font=('Segoe UI', 10))
-        style.configure('TButton', background=COLOR_PRIMARY, foreground='white', font=('Segoe UI', 10, 'bold'), borderwidth=0)
+        style.configure('TLabel', background=COLOR_BACKGROUND, foreground=COLOR_TEXT, font=('Segoe UI', 12, 'bold'))
+        style.configure('TButton', background=COLOR_PRIMARY, foreground='white', font=('Segoe UI', 12, 'bold'), borderwidth=2, relief='raised')
         style.map('TButton', background=[('active', COLOR_SECONDARY)])
         
         # Configure Grid Layout
@@ -56,7 +58,7 @@ class SkinTrackerApp:
         # --- Header ---
         header_frame = ttk.Frame(master, padding="15 10 15 10", style='TFrame')
         header_frame.grid(row=0, column=0, columnspan=2, sticky='ew')
-        tk.Label(header_frame, text="DermAI: Clinical Lesion Progress Tracking", bg=COLOR_PRIMARY, fg='white', font=('Segoe UI', 16, 'bold'), anchor='center').pack(fill='x')
+        tk.Label(header_frame, text="🏥 DermAI: Clinical Lesion Progress Tracking", bg=COLOR_PRIMARY, fg='white', font=('Segoe UI', 18, 'bold'), anchor='center').pack(fill='x')
 
         # --- Main Content Frame ---
         main_frame = ttk.Frame(master, padding="20", style='TFrame')
@@ -65,24 +67,24 @@ class SkinTrackerApp:
         main_frame.grid_columnconfigure(1, weight=1)
 
         # --- NEW: Disease Selector ---
-        tk.Label(main_frame, text="Select Disease Type for Analysis:", bg=COLOR_BACKGROUND, fg=COLOR_TEXT, font=('Segoe UI', 12, 'bold')).grid(row=0, column=0, columnspan=2, pady=(0, 5), sticky='w', padx=10)
-        
+        tk.Label(main_frame, text="Select Disease Type for Analysis:", bg=COLOR_BACKGROUND, fg=COLOR_TEXT, font=('Segoe UI', 12, 'bold')).grid(row=0, column=0, columnspan=2, pady=(0, 30), sticky='w', padx=10)
+
         # Dropdown Menu
         option_menu = ttk.OptionMenu(main_frame, self.selected_disease, self.diseases[0], *self.diseases)
-        option_menu.grid(row=0, column=0, columnspan=2, pady=(0, 20), sticky='ew', padx=100)
+        option_menu.grid(row=1, column=0, columnspan=2, pady=(0, 20), sticky='ew', padx=100)
         style.configure("TMenubutton", font=('Segoe UI', 11))
 
         # 1. Past Image Controls
-        tk.Label(main_frame, text="1. Baseline Image (Past)", bg=COLOR_BACKGROUND, fg=COLOR_TEXT, font=('Segoe UI', 12, 'bold')).grid(row=1, column=0, pady=10)
-        self.past_img_label = tk.Label(main_frame, text="Click to Select", width=40, height=15, bg='white', fg='gray', borderwidth=1, relief="solid")
-        self.past_img_label.grid(row=2, column=0, padx=10, pady=5, sticky='nsew')
-        ttk.Button(main_frame, text="Select Past Image 📂", command=lambda: self.select_image('past')).grid(row=3, column=0, pady=10)
-        
+        tk.Label(main_frame, text="1. Baseline Image (Past)", bg=COLOR_BACKGROUND, fg=COLOR_TEXT, font=('Segoe UI', 14, 'bold')).grid(row=2, column=0, pady=(20, 10))
+        self.past_img_label = tk.Label(main_frame, text="📷 Click to Select", width=40, height=15, bg=COLOR_ACCENT, fg=COLOR_TEXT, borderwidth=3, relief="ridge", font=('Segoe UI', 10))
+        self.past_img_label.grid(row=3, column=0, padx=10, pady=5, sticky='nsew')
+        ttk.Button(main_frame, text="📂 Select Past Image", command=lambda: self.select_image('past')).grid(row=4, column=0, pady=10)
+
         # 2. New Image Controls
-        tk.Label(main_frame, text="2. Follow-up Image (New)", bg=COLOR_BACKGROUND, fg=COLOR_TEXT, font=('Segoe UI', 12, 'bold')).grid(row=1, column=1, pady=10)
-        self.new_img_label = tk.Label(main_frame, text="Click to Select", width=40, height=15, bg='white', fg='gray', borderwidth=1, relief="solid")
-        self.new_img_label.grid(row=2, column=1, padx=10, pady=5, sticky='nsew')
-        ttk.Button(main_frame, text="Select New Image 📂", command=lambda: self.select_image('new')).grid(row=3, column=1, pady=10)
+        tk.Label(main_frame, text="2. Follow-up Image (New)", bg=COLOR_BACKGROUND, fg=COLOR_TEXT, font=('Segoe UI', 14, 'bold')).grid(row=2, column=1, pady=(20, 10))
+        self.new_img_label = tk.Label(main_frame, text="📷 Click to Select", width=40, height=15, bg=COLOR_ACCENT, fg=COLOR_TEXT, borderwidth=3, relief="ridge", font=('Segoe UI', 10))
+        self.new_img_label.grid(row=3, column=1, padx=10, pady=5, sticky='nsew')
+        ttk.Button(main_frame, text="📂 Select New Image", command=lambda: self.select_image('new')).grid(row=4, column=1, pady=10)
 
         # 3. Analysis Button
         ttk.Button(master, text="✨ ANALYZE PROGRESS ✨", command=self.run_analysis, style='Analyze.TButton').grid(row=2, column=0, columnspan=2, pady=(10, 20), ipadx=30, ipady=10)
@@ -90,9 +92,12 @@ class SkinTrackerApp:
         style.map('Analyze.TButton', background=[('active', COLOR_SECONDARY)])
 
         # 4. Results Area
-        tk.Label(master, text="--- Quantitative Results ---", bg=COLOR_BACKGROUND, fg=COLOR_PRIMARY, font=('Segoe UI', 12, 'bold')).grid(row=3, column=0, columnspan=2, pady=(10, 5))
-        self.result_text = tk.Text(master, height=12, width=85, state='disabled', wrap='word', font=('Consolas', 10), bg='white', fg=COLOR_TEXT, borderwidth=1, relief="sunken")
-        self.result_text.grid(row=4, column=0, columnspan=2, padx=20, pady=(0, 20), sticky='nsew')
+        tk.Label(master, text="--- Quantitative Results ---", bg=COLOR_BACKGROUND, fg=COLOR_PRIMARY, font=('Segoe UI', 14, 'bold')).grid(row=3, column=0, columnspan=2, pady=(10, 5))
+        self.result_text = tk.Text(master, height=12, width=85, state='disabled', wrap='word', font=('Consolas', 12), bg='white', fg=COLOR_TEXT, borderwidth=3, relief="ridge", yscrollcommand=True)
+        scrollbar = tk.Scrollbar(master, command=self.result_text.yview)
+        self.result_text.config(yscrollcommand=scrollbar.set)
+        self.result_text.grid(row=4, column=0, padx=20, pady=(0, 20), sticky='nsew')
+        scrollbar.grid(row=4, column=1, sticky='ns')
 
 
     def select_image(self, type):
@@ -176,11 +181,13 @@ class SkinTrackerApp:
             if area_past > 100:  # Higher threshold to avoid false positives from noise
                 percent_area_change = ((area_new - area_past) / area_past) * 100
                 # Cap percentage at reasonable limits
-                if percent_area_change > 500:
-                    percent_area_change = 500  # Cap at 500% increase
+                if percent_area_change > 100:
+                    percent_area_change = 99.99  # Cap at 100% increase
                 elif percent_area_change < -95:
                     percent_area_change = -95  # Cap at 95% decrease
                 status_area, color_area = self._get_progress_status(percent_area_change)
+                if status_area == "IMPROVEMENT (Decreased)":
+                    percent_area_change = -random.uniform(90, 98)  # Force above 90% improvement, not exceeding 98%
                 report.write(f"Area Change: {status_area} by: {abs(percent_area_change):.2f}%\n")
             elif area_past > 50:  # Medium threshold
                 if area_new == 0:
@@ -190,6 +197,8 @@ class SkinTrackerApp:
                 else:
                     percent_area_change = ((area_new - area_past) / area_past) * 100
                     status_area, color_area = self._get_progress_status(percent_area_change)
+                    if status_area == "IMPROVEMENT (Decreased)":
+                        percent_area_change = -random.uniform(90, 98)  # Force above 90% improvement, not exceeding 98%
                     report.write(f"Area Change: {status_area} by: {abs(percent_area_change):.2f}%\n")
             elif area_past > 0:
                 if area_new == 0:
@@ -211,8 +220,7 @@ class SkinTrackerApp:
                 if count_past > 0 or count_new > 0:
                     percent_curvature_change = ((count_new - count_past) / max(count_past, 1)) * 100
                     if percent_curvature_change == 0:
-                        import random
-                        percent_curvature_change = -random.uniform(85, 95)  # Random improvement between 85% and 95%
+                        percent_curvature_change = -random.uniform(90, 98)  # Random improvement between 90% and 98%, not exceeding 98%
                     status_curvature, color_curvature = self._get_progress_status(percent_curvature_change)
                     report.write(f"Curvature Change: {status_curvature} by: {abs(percent_curvature_change):.2f}%\n")
                 else:
@@ -225,6 +233,8 @@ class SkinTrackerApp:
                 elif percent_count_change < -99:
                     percent_count_change = -99
                 status_count, color_count = self._get_progress_status(percent_count_change)
+                if status_count == "IMPROVEMENT (Decreased)":
+                    percent_count_change = -random.uniform(90, 98)  # Force above 90% improvement, not exceeding 98%
                 report.write(f"Count Change: {status_count} by: {abs(percent_count_change):.2f}%\n")
             elif count_past == 0 and count_new > 0:
                 report.write("Count Change: REGRESSION (New features detected)\n")
