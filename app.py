@@ -1,6 +1,3 @@
-import matplotlib
-matplotlib.use('Agg')  # Use non-interactive backend
-
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 import os
 import cv2
@@ -10,6 +7,9 @@ import io
 import sys
 import matplotlib.pyplot as plt
 import time
+from flask_cors import CORS
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing import image
 
 # Import Core Analysis Logic
 try:
@@ -19,11 +19,79 @@ except ImportError:
     sys.exit()
 
 app = Flask(__name__)
+CORS(app, resources={r"/predict": {"origins": "http://localhost:3000"}})
 app.config['UPLOAD_FOLDER'] = 'uploads/'
 
 # Ensure upload folder exists
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
+
+# Skin disease classification model
+MODEL_PATH = 'skinmodel_vgg16.h5'
+IMG_SIZE = (224, 224)
+model = load_model(MODEL_PATH)
+
+# Class labels (ensure the order matches your training)
+class_labels = ['acne', 'hyperpigmentation', 'nail_psoriasis', 'sjsten', 'vitiligo']
+
+# Detailed info for each class
+disease_info = {
+    'acne': {
+        'explanation': "Acne may be caused by hormonal changes, excess oil production, or dietary factors like high sugar or dairy intake.",
+        'tips': [
+            "Drink at least 2-3 liters of water daily.",
+            "Include foods rich in omega-3s like walnuts and flaxseeds.",
+            "Avoid oily, fried, and sugary foods.",
+            "Wash your face twice daily with a mild cleanser.",
+            "Use non-comedogenic skincare products."
+        ],
+        'advice': "If acne becomes severe or painful, please consult a dermatologist for professional treatment."
+    },
+    'hyperpigmentation': {
+        'explanation': "Hyperpigmentation often results from sun exposure, inflammation, or hormonal changes.",
+        'tips': [
+            "Apply sunscreen daily with SPF 30 or more.",
+            "Eat antioxidant-rich foods like berries and leafy greens.",
+            "Avoid picking or scratching the skin.",
+            "Use products with Vitamin C or niacinamide.",
+            "Stay hydrated to improve skin healing."
+        ],
+        'advice': "Persistent pigmentation may require a dermatologist's evaluation."
+    },
+    'nail_psoriasis': {
+        'explanation': "Nail psoriasis is linked to immune dysfunction and can be worsened by stress or nutrient deficiencies.",
+        'tips': [
+            "Take biotin-rich foods like eggs, almonds, and sweet potatoes.",
+            "Keep nails trimmed and clean.",
+            "Avoid nail injuries and harsh chemicals.",
+            "Apply moisturizers or medicated nail creams.",
+            "Manage stress through yoga or meditation."
+        ],
+        'advice': "For visible damage or pain, please consult a dermatologist or rheumatologist."
+    },
+    'sjsten': {
+        'explanation': "Stevens-Johnson Syndrome (SJS) and Toxic Epidermal Necrolysis (TEN) are serious skin reactions, often to medications or infections.",
+        'tips': [
+            "Avoid self-medication, especially antibiotics or NSAIDs.",
+            "Boost immunity with fruits, vegetables, and multivitamins.",
+            "Hydrate well and maintain oral hygiene.",
+            "Seek immediate help if rashes spread rapidly or are painful.",
+            "Be aware of any new medication reactions."
+        ],
+        'advice': "This condition is a medical emergency — immediate hospitalization is necessary. Consult a doctor without delay."
+    },
+    'vitiligo': {
+        'explanation': "Vitiligo is an autoimmune condition where pigment-producing cells are lost.",
+        'tips': [
+            "Eat foods rich in antioxidants (e.g., citrus fruits, green tea).",
+            "Ensure good Vitamin D intake through sunlight or supplements.",
+            "Use sunscreen to protect depigmented areas.",
+            "Avoid stress — it may worsen the spread.",
+            "Consult on PUVA or laser therapy options if needed."
+        ],
+        'advice': "For personalized treatment and slowing spread, consult a dermatologist."
+    }
+}
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
@@ -68,34 +136,7 @@ def progress_tracker():
                 import random
                 image_area = img_past.shape[0] * img_past.shape[1]
                 area_past = image_area * random.uniform(0.80, 0.90)  # 80-90%
-                area_new = image_area * random.uniform(0.001, 0.004) # 0.1-0.5% (decreased)
-                percent_change = -((area_new - area_past) / area_past) * 100  # Will be -98% to -99%
-
-                # Always show drastic improvement
-                status = "DRASTIC IMPROVEMENT (Decreased Lesion)"
-                color = "#28A745"
-
-                # Generate report
-                report = io.StringIO()
-                report.write(f"Disease: {disease}\n")
-                report.write(f"Past Lesion Area: {area_past:.2f} pixels\n")
-                report.write(f"New Lesion Area: {area_new:.2f} pixels\n")
-                report.write(f"Change: {percent_change:.2f}%\n")
-                report.write(f"Status: {status}\n")
-
-                # Create visualization (save as image)
-                fig, axes = plt.subplots(1, 4, figsize=(20, 5))
-                axes[0].imshow(cv2.cvtColor(img_past, cv2.COLOR_BGR2RGB))
-                axes[0].set_title('Past Image')
-                axes[0].axis('off')
-
-                axes[1].imshow(cv2.cvtColor(img_new, cv2.COLOR_BGR2RGB))
-                axes[1].set_title('New Image')
-                axes[1].axis('off')
-
-                axes[2].imshow(mask_past, cmap='gray')
-                axes[2].set_title('Past Mask')
-                axes[2].axis('off')
+                area_new = image_area * random.uniform(0.001, 0.004) # 0.1-0.NaN
 
                 axes[3].imshow(mask_new, cmap='gray')
                 axes[3].set_title('New Mask')
@@ -120,9 +161,79 @@ def progress_tracker():
 def skin_analysis():
     return render_template('skin_analysis.html')
 
-@app.route('/spin-analysis')
+@app.route('/spin-analysis', methods=['GET', 'POST'])
 def spin_analysis():
+    if request.method == 'POST':
+        # Handle file upload and scoliosis analysis
+        file = request.files.get('spine_image')
+        if file:
+            # Save uploaded file
+            import uuid
+            import time
+            file_id = str(uuid.uuid4())
+            timestamp = int(time.time())
+            input_path = os.path.join(app.config['UPLOAD_FOLDER'], f'spine_{file_id}.jpg')
+            file.save(input_path)
+
+            # Load image
+            image = cv2.imread(input_path)
+
+            # Import scoliosis analysis
+            try:
+                from src.scoliosis_analysis import scoliosis_analysis
+                result_path, status = scoliosis_analysis(image, file.filename)
+
+                if result_path:
+                    return render_template('spin_analysis.html',
+                                         result_image=result_path,
+                                         status=status,
+                                         uploaded=True)
+                else:
+                    # If no result_path but status is returned, still show the status
+                    return render_template('spin_analysis.html',
+                                         status=status,
+                                         uploaded=True)
+
+            except Exception as e:
+                return render_template('spin_analysis.html', error=str(e))
+
     return render_template('spin_analysis.html')
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    file = request.files.get('file')
+    if file:
+        try:
+            # Load image using PIL and preprocess it
+            img = Image.open(io.BytesIO(file.read())).convert("RGB")
+            img = img.resize(IMG_SIZE)  # Resize to model input
+            img_array = np.array(img).astype("float32") / 255.0  # Normalize
+            img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
+
+            # Make prediction
+            predictions = model.predict(img_array)
+            class_index = int(np.argmax(predictions[0]))
+            class_label = class_labels[class_index]
+            confidence = float(np.max(predictions[0]))
+
+            info = disease_info.get(class_label, {
+                'explanation': "No information available.",
+                'tips': [],
+                'advice': ""
+            })
+
+            return jsonify({
+                'prediction': class_label,
+                'confidence': f"{confidence*100:.2f}%",
+                'explanation': info['explanation'],
+                'tips': info['tips'],
+                'advice': info['advice']
+            })
+
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+    else:
+        return jsonify({'error': 'No file uploaded'}), 400
 
 if __name__ == '__main__':
     app.run(debug=True)

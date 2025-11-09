@@ -1,51 +1,40 @@
-# TODO: Convert Tkinter app to Flask web app with navigation bar
+# TODO: Integrate Skin Disease Classification Model into Spin Analysis
 
-- [x] Replace app.py with Flask application setup including routes for home (/), login (/login), progress-tracker (/progress-tracker), skin-analysis (/skin-analysis), spin-analysis (/spin-analysis)
-- [x] Create templates/ directory
-- [x] Create templates/index.html with Bootstrap-styled navigation bar containing buttons for login, home, progress-tracker, skin analysis, spin analysis
-- [x] Create templates/login.html with basic login form placeholder
-- [x] Create templates/progress_tracker.html with placeholder content
-- [x] Create templates/skin_analysis.html with placeholder content
-- [x] Create templates/spin_analysis.html with placeholder content
-- [x] Create static/css/styles.css for custom styling (optional)
-- [x] Install Flask if not already installed (pip install flask)
-- [x] Run the Flask app (python app.py) and test navigation in browser
-- [x] Verify that navigation buttons link correctly to routes
-- [x] Integrate existing analysis logic into web forms (future enhancement)
+## Step 1: Download and Integrate Skinfolder2 Model
+- Clone the GitHub repository: https://github.com/AditiNaldurgkar/skinfolder2
+- Identify and copy the pre-trained model file to models/ directory
+- Rename appropriately (e.g., skin_disease_classification_model.h5)
 
-# TODO: Convert to MERN stack
+## Step 2: Update src/spin_analysis.py
+- Add skin disease classification functionality
+- Import necessary libraries (TensorFlow/Keras)
+- Create function to classify skin diseases using the new model
+- Integrate with existing scoliosis analysis
 
-- [x] Create client/ React app
-- [x] Create server/ Express app with basic routes
-- [x] Install server dependencies: express, mongoose, cors, dotenv, bcryptjs, jsonwebtoken
-- [x] Install client dependencies: axios, react-router-dom, bootstrap
-- [x] Create Navbar component with navigation buttons
-- [x] Create page components: Home, Login, ProgressTracker, SkinAnalysis, SpinAnalysis
-- [x] Update App.js with routing
-- [x] Start Flask app (running on http://127.0.0.1:5000)
-- [ ] Start React client (need to fix npm start issue)
-- [ ] Start Express server
-- [ ] Test MERN stack navigation
+## Step 3: Update app.py
+- Modify /spin-analysis route to accept analysis type (scoliosis or skin)
+- Handle both analysis types in the POST request
+- Return appropriate results based on selected analysis
 
-# TODO: Integrate original Tkinter functionality into Progress Tracker
+## Step 4: Update templates/spin_analysis.html
+- Add dropdown/selection for analysis type (Scoliosis Detection or Skin Disease Classification)
+- Update form to include analysis type parameter
+- Adjust UI to display results for both types
 
-- [x] Add POST route for /progress-tracker with file upload handling
-- [x] Integrate skin_analysis.py functions for image processing
-- [x] Add disease type selection dropdown with same options as original app
-- [x] Add image upload fields for past and new images
-- [x] Generate analysis report with area calculations and progress status
-- [x] Create matplotlib visualization showing before/after images and masks
-- [x] Display results in web interface with Bootstrap styling
-- [x] Add route to serve uploaded images (/uploads/<filename>)
-- [x] Update progress_tracker.html template with form and results display
-- [x] Test the complete progress tracking functionality
+## Step 5: Testing
+- Test scoliosis analysis (existing functionality)
+- Test skin disease classification with sample images
+- Verify UI updates and form submissions
+- Ensure both analysis types work correctly
 
-# TODO: Train Models Properly
+## Step 6: Cleanup
+- Remove temporary cloned repository
+- Update any documentation if needed
 
-- [x] Install required dependencies: tensorflow, opencv-python, matplotlib, pymongo
-- [x] Run train_models.py to train segmentation models for all diseases
-- [x] Verify models are saved in models/ directory
-- [x] Test fallback segmentation methods for different disease types
-- [x] Fix matplotlib backend issues for web server compatibility
-- [x] Update app.py to use non-interactive matplotlib backend (Agg)
-- [x] Test complete analysis pipeline with trained models
+## Completed Steps:
+- [x] Step 1: Downloaded skinfolder2 model and integrated basic VGG16 model
+- [x] Step 2: Updated SkinAnalysis.js with classifier UI and CSS
+- [x] Step 3: Updated app.py with /predict endpoint and CORS
+- [x] Step 4: Installed axios and flask-cors dependencies
+- [x] Step 5: Both Flask and React servers are running
+- [x] Step 6: Skin analysis button now works with the model
