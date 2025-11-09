@@ -8,7 +8,7 @@ const Navbar = () => {
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
       <div className="container-fluid">
-        <Link className="navbar-brand" to="/">Disease Progress Tracker</Link>
+        <Link className="navbar-brand" to="/">HEALTH PLUS</Link>
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
           <span className="navbar-toggler-icon"></span>
         </button>
@@ -27,7 +27,7 @@ const Navbar = () => {
               <Link className={`nav-link ${location.pathname === '/skin-analysis' ? 'active' : ''}`} to="/skin-analysis">Skin Analysis</Link>
             </li>
             <li className="nav-item">
-              <Link className={`nav-link ${location.pathname === '/spin-analysis' ? 'active' : ''}`} to="/spin-analysis">Spin Analysis</Link>
+              <Link className={`nav-link ${location.pathname === '/spin-analysis' ? 'active' : ''}`} to="/spin-analysis">Spine Analysis</Link>
             </li>
           </ul>
         </div>

@@ -2,12 +2,14 @@
 Spin Analysis Module for Disease Progress Tracker
 
 This module provides analysis functions for specific disease types.
-Includes scoliosis analysis for detecting spinal curvature in physical images.
+Includes scoliosis analysis for detecting spinal curvature in physical images
+and skin disease classification integration.
 """
 
 import cv2
 import numpy as np
 from scipy.optimize import curve_fit
+from .skin_disease_classifier import classify_skin_disease
 
 def analyze_spin_features(image, disease_type="spin"):
     """

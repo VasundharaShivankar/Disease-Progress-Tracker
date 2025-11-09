@@ -2,13 +2,14 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import os
-from tensorflow.keras.models import load_model 
+from tensorflow.keras.models import load_model
 
 # --- NEW IMPORTS: Import the fallback logic from the new files ---
-from src.analysis_methods.generic import generic_lesion_fallback
-from src.analysis_methods.nail_psoriasis import nail_psoriasis_fallback
-from src.analysis_methods.diffuse import diffuse_lesion_fallback
-from src.spin_analysis import scoliosis_fallback
+from .analysis_methods.generic import generic_lesion_fallback
+from .analysis_methods.nail_psoriasis import nail_psoriasis_fallback
+from .analysis_methods.diffuse import diffuse_lesion_fallback
+from .spin_analysis import scoliosis_fallback
+from .skin_disease_classifier import classify_skin_disease
 # ---------------------------------------------------------------
 
 # --- 1. CONFIGURATION ---
