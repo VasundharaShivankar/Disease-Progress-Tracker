@@ -31,23 +31,12 @@ def download_isic_images(output_dir="data", num_images=50):
     """
     print("Downloading from ISIC Archive (sample demonstration)...")
 
-    # ISIC provides APIs, but for demo, we'll simulate or use public samples
-    # In a real scenario, register and use their API: https://api.isic-archive.com/
-
-    # For demonstration, we'll download a small public sample if available
-    # Since direct download might require API key, we'll note it
-
     print("ISIC requires API registration. Please visit https://isic-archive.com/ to download manually.")
     print("For automated download, implement API calls with proper authentication.")
 
     # Placeholder: Create directory
     isic_dir = os.path.join(output_dir, "isic_samples")
     os.makedirs(isic_dir, exist_ok=True)
-
-    # In practice, you'd do:
-    # response = requests.get("https://api.isic-archive.com/images", params={...})
-    # But since it requires auth, we'll skip actual download in this script
-
     print(f"Created directory: {isic_dir}")
     print("Please download ISIC images manually for now.")
 
@@ -152,7 +141,6 @@ def main():
     print("Cite sources appropriately.")
     print("=" * 80)
 
-    # Download from different sources
     download_dermnet_images(num_images=20)
     download_isic_images(num_images=20)
     download_medmnist()
