@@ -136,7 +136,6 @@ def classify_skin_disease(image):
 
         return {
             'prediction': class_label,
-            'confidence': f"{confidence*100:.2f}%",
             'explanation': info['explanation'],
             'tips': info['tips'],
             'advice': info['advice']

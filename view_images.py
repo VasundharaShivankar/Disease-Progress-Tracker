@@ -40,7 +40,12 @@ def view_images_from_collection(collection_name, limit=None):
         rows = (num_images + cols - 1) // cols  # Ceiling division
 
         fig, axes = plt.subplots(rows, cols, figsize=(15, 3 * rows))
-        axes = axes.flatten() if num_images > 1 else [axes]
+
+        # Handle axes flattening properly
+        if rows == 1 and cols == 1:
+            axes = [axes]  # Single subplot
+        else:
+            axes = axes.flatten()
 
         for i, (ax, img, fname) in enumerate(zip(axes, images, filenames)):
             ax.imshow(img)
@@ -48,8 +53,8 @@ def view_images_from_collection(collection_name, limit=None):
             ax.axis('off')
 
         # Hide unused subplots
-        for ax in axes[num_images:]:
-            ax.axis('off')
+        for i in range(num_images, len(axes)):
+            axes[i].axis('off')
 
         plt.suptitle(f"All Images from {collection_name} ({num_images} images)")
         plt.tight_layout()
