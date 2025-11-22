@@ -1,10 +1,10 @@
-# Disease Progress Tracker
+# Nutritional Assessment in Children using Image Processing
 
 ## Author
 This project is authored by Vasundhara Shivankar.
 
 ## Project Overview
-The Disease Progress Tracker is a web application designed to analyze and track the progression of skin and spinal diseases in Children. It leverages deep learning models and advanced image processing techniques to provide insights into skin conditions (such as acne, dermatitis, hyperpigmentation, psoriasis, and nail psoriasis) and scoliosis through detailed image analysis and classification.
+The Nutritional Assessment in Children is a web application designed to analyze and track the progression of skin and spinal diseases in Children. It leverages deep learning models and advanced image processing techniques to provide insights into skin conditions (such as acne, dermatitis, hyperpigmentation, psoriasis, and nail psoriasis) and scoliosis through detailed image analysis and classification.
 
 The application offers functionalities such as disease classification from skin images, comparison between past and recent lesion images to measure progress, and scoliosis severity analysis with supplement recommendations.
 
