@@ -48,14 +48,19 @@ class ProductionConfig(Config):
     """Production configuration"""
     DEBUG = False
     TESTING = False
-    SECRET_KEY = os.environ.get('SECRET_KEY')
-    MONGO_URI = os.environ.get('MONGO_URI')
 
-    if not SECRET_KEY:
-        raise ValueError("SECRET_KEY environment variable is required in production")
+    def __init__(self):
+        super().__init__()
+        # Override with environment variables for production
+        self.SECRET_KEY = os.environ.get('SECRET_KEY')
+        self.MONGO_URI = os.environ.get('MONGO_URI')
 
-    if not MONGO_URI:
-        raise ValueError("MONGO_URI environment variable is required in production")
+        # Validate required environment variables
+        if not self.SECRET_KEY:
+            raise ValueError("SECRET_KEY environment variable is required in production")
+
+        if not self.MONGO_URI:
+            raise ValueError("MONGO_URI environment variable is required in production")
 
 class TestingConfig(Config):
     """Testing configuration"""

@@ -11,12 +11,11 @@ import time
 import uuid
 from datetime import datetime
 
-from .. import mongo, model, IMG_SIZE, CLASS_LABELS, disease_info
-from ..models import AnalysisResult, FileUpload
-from ..utils.logger import get_request_logger, log_request, log_error, log_model_prediction, log_file_upload
-from ..utils.validators import validate_file_upload
-from ..src.skin_analysis import segment_lesion, calculate_lesion_area
-from ..src.scoliosis_analysis import scoliosis_analysis
+from models import AnalysisResult, FileUpload
+from utils.logger import get_request_logger, log_request, log_error, log_model_prediction, log_file_upload
+from utils.validators import validate_file_upload
+from src.skin_analysis import segment_lesion, calculate_lesion_area
+from src.scoliosis_analysis import scoliosis_analysis
 
 analysis_bp = Blueprint('analysis', __name__, url_prefix='/analysis')
 logger = get_request_logger()

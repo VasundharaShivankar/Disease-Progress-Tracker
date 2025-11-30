@@ -12,3 +12,4 @@ matplotlib
 pymongo
 flask-pymongo
 bcrypt
+gunicorn

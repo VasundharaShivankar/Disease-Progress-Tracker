@@ -96,4 +96,3 @@ class RequestLogger:
         duration = logging.time.time() - self.start_time
         log_request(self.logger, self.method, self.path, self.user_id, duration)
         if exc_type:
-            log_error(self.logger, exc_val, f"Request failed: {self.method} {self.path}")
