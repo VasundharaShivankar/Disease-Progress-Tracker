@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, flash, session
 import os
 import cv2
 import numpy as np
@@ -7,7 +7,13 @@ import io
 import sys
 import matplotlib.pyplot as plt
 import time
+import json
 from flask_cors import CORS
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_pymongo import PyMongo
+import bcrypt
+from datetime import datetime
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
 
@@ -19,8 +25,40 @@ except ImportError:
     sys.exit()
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'your-secret-key-here-change-in-production'
 CORS(app, resources={r"/predict": {"origins": "http://localhost:3000"}})
 app.config['UPLOAD_FOLDER'] = 'uploads/'
+
+# MongoDB Configuration
+app.config['MONGO_URI'] = 'mongodb://localhost:27017/health_plus_db'
+mongo = PyMongo(app)
+
+# Initialize Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+# User class
+class User(UserMixin):
+    def __init__(self, id, email, password_hash, name=None, created_at=None):
+        self.id = id
+        self.email = email
+        self.password_hash = password_hash
+        self.name = name
+        self.created_at = created_at
+
+@login_manager.user_loader
+def load_user(user_id):
+    user_data = mongo.db.users.find_one({'_id': user_id})
+    if user_data:
+        return User(
+            id=user_data['_id'],
+            email=user_data['email'],
+            password_hash=user_data['password_hash'],
+            name=user_data.get('name'),
+            created_at=user_data.get('created_at')
+        )
+    return None
 
 # Ensure upload folder exists
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
@@ -101,11 +139,64 @@ def uploaded_file(filename):
 def home():
     return render_template('index.html')
 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        name = request.form.get('name')
+        action = request.form.get('action')
+
+        if action == 'login':
+            user_data = mongo.db.users.find_one({'email': email})
+            if user_data and check_password_hash(user_data['password_hash'], password):
+                user = User(
+                    id=str(user_data['_id']),
+                    email=user_data['email'],
+                    password_hash=user_data['password_hash'],
+                    name=user_data.get('name'),
+                    created_at=user_data.get('created_at')
+                )
+                login_user(user)
+                flash('Logged in successfully!', 'success')
+                return redirect(url_for('home'))
+            else:
+                flash('Invalid email or password.', 'error')
+        elif action == 'signup':
+            existing_user = mongo.db.users.find_one({'email': email})
+            if existing_user:
+                flash('Email already registered.', 'error')
+            else:
+                password_hash = generate_password_hash(password)
+                user_doc = {
+                    'email': email,
+                    'password_hash': password_hash,
+                    'name': name,
+                    'created_at': datetime.utcnow()
+                }
+                result = mongo.db.users.insert_one(user_doc)
+                user = User(
+                    id=str(result.inserted_id),
+                    email=email,
+                    password_hash=password_hash,
+                    name=name,
+                    created_at=user_doc['created_at']
+                )
+                login_user(user)
+                flash('Account created successfully!', 'success')
+                return redirect(url_for('home'))
+
     return render_template('login.html')
 
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('Logged out successfully!', 'success')
+    return redirect(url_for('home'))
+
 @app.route('/progress-tracker', methods=['GET', 'POST'])
+@login_required
 def progress_tracker():
     if request.method == 'POST':
         # Handle file uploads and analysis
@@ -201,6 +292,7 @@ def progress_tracker():
     return render_template('progress_tracker.html')
 
 @app.route('/skin-analysis', methods=['GET', 'POST'])
+@login_required
 def skin_analysis():
     if request.method == 'POST':
         # Handle file upload and skin disease classification
@@ -276,6 +368,7 @@ def skin_analysis():
     return render_template('skin_analysis.html')
 
 @app.route('/spin-analysis', methods=['GET', 'POST'])
+@login_required
 def spin_analysis():
     if request.method == 'POST':
         # Handle file upload and scoliosis analysis

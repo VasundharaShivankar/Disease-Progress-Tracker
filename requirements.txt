@@ -1,7 +1,14 @@
 flask
+flask-login
+werkzeug
 opencv-python-headless
 numpy
 pillow
 torch
 torchvision
 ultralytics
+flask-cors
+matplotlib
+pymongo
+flask-pymongo
+bcrypt
