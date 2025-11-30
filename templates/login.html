@@ -176,7 +176,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="/">
-                <i class="fas fa-heartbeat me-2"></i>
+                <i class="fas fa-heartbeat me-2" aria-hidden="true"></i>
                 Health Plus
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -186,27 +186,27 @@
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="/">
-                            <i class="fas fa-home me-1"></i>Home
+                            <i class="fas fa-home me-1" aria-hidden="true"></i>Home
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="/login">
-                            <i class="fas fa-sign-in-alt me-1"></i>Login
+                        <a class="nav-link active" href="/login" aria-current="page">
+                            <i class="fas fa-sign-in-alt me-1" aria-hidden="true"></i>Login
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/progress-tracker">
-                            <i class="fas fa-chart-line me-1"></i>Progress Tracker
+                            <i class="fas fa-chart-line me-1" aria-hidden="true"></i>Progress Tracker
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/skin-analysis">
-                            <i class="fas fa-search me-1"></i>Skin Analysis
+                            <i class="fas fa-search me-1" aria-hidden="true"></i>Skin Analysis
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/spin-analysis">
-                            <i class="fas fa-bone me-1"></i>Spine Analysis
+                            <i class="fas fa-bone me-1" aria-hidden="true"></i>Spine Analysis
                         </a>
                     </li>
                 </ul>
@@ -214,110 +214,182 @@
         </div>
     </nav>
 
-        <div class="login-container">
-            <div class="login-header">
-                <div class="login-icon">
-                    <i class="fas fa-user-md"></i>
+    <div class="login-container">
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loading-overlay" aria-live="polite" aria-atomic="true">
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only">Loading...</span>
                 </div>
-                <h2 class="login-title" id="form-title">Welcome Back</h2>
-                <p class="login-subtitle" id="form-subtitle">Sign in to access your medical dashboard</p>
-            </div>
-
-            <!-- Login Form -->
-            <form id="login-form" method="POST">
-                <input type="hidden" name="action" value="login">
-                <div class="form-floating">
-                    <input type="email" class="form-control" id="login-email" name="email" placeholder="name@example.com" required>
-                    <label for="login-email">
-                        <i class="fas fa-envelope me-2"></i>Email Address
-                    </label>
-                </div>
-
-                <div class="form-floating">
-                    <input type="password" class="form-control" id="login-password" name="password" placeholder="Password" required>
-                    <label for="login-password">
-                        <i class="fas fa-lock me-2"></i>Password
-                    </label>
-                </div>
-
-                <div class="mb-3 form-check">
-                    <input type="checkbox" class="form-check-input" id="rememberMe">
-                    <label class="form-check-label" for="rememberMe">Remember me</label>
-                </div>
-
-                <button type="submit" class="btn btn-login">
-                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
-                </button>
-            </form>
-
-            <!-- Signup Form -->
-            <form id="signup-form" method="POST" style="display: none;">
-                <input type="hidden" name="action" value="signup">
-                <div class="form-floating">
-                    <input type="text" class="form-control" id="signup-name" name="name" placeholder="Full Name" required>
-                    <label for="signup-name">
-                        <i class="fas fa-user me-2"></i>Full Name
-                    </label>
-                </div>
-
-                <div class="form-floating">
-                    <input type="email" class="form-control" id="signup-email" name="email" placeholder="name@example.com" required>
-                    <label for="signup-email">
-                        <i class="fas fa-envelope me-2"></i>Email Address
-                    </label>
-                </div>
-
-                <div class="form-floating">
-                    <input type="password" class="form-control" id="signup-password" name="password" placeholder="Password" required minlength="6">
-                    <label for="signup-password">
-                        <i class="fas fa-lock me-2"></i>Password
-                    </label>
-                </div>
-
-                <div class="form-floating">
-                    <input type="password" class="form-control" id="confirm-password" placeholder="Confirm Password" required minlength="6">
-                    <label for="confirm-password">
-                        <i class="fas fa-lock me-2"></i>Confirm Password
-                    </label>
-                </div>
-
-                <button type="submit" class="btn btn-login">
-                    <i class="fas fa-user-plus me-2"></i>Create Account
-                </button>
-            </form>
-
-            <div class="social-login">
-                <p class="mb-3">Or continue with</p>
-                <a href="#" class="social-btn google">
-                    <i class="fab fa-google"></i>
-                </a>
-                <a href="#" class="social-btn facebook">
-                    <i class="fab fa-facebook-f"></i>
-                </a>
-                <a href="#" class="social-btn twitter">
-                    <i class="fab fa-twitter"></i>
-                </a>
-            </div>
-
-            <div class="register-link">
-                <p id="toggle-text">Don't have an account? <a href="#" id="toggle-link">Create one here</a></p>
+                <p class="mt-2">Processing your request...</p>
             </div>
         </div>
+
+        <div class="login-header">
+            <div class="login-icon">
+                <i class="fas fa-user-md" aria-hidden="true"></i>
+            </div>
+            <h1 class="login-title" id="form-title">Welcome Back</h1>
+            <p class="login-subtitle" id="form-subtitle">Sign in to access your medical dashboard</p>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'info-circle' }} me-2" aria-hidden="true"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Login Form -->
+        <form id="login-form" method="POST" novalidate>
+            <input type="hidden" name="action" value="login">
+            <div class="form-floating">
+                <input type="email" class="form-control" id="login-email" name="email"
+                       placeholder="name@example.com" required aria-describedby="email-help">
+                <label for="login-email">
+                    <i class="fas fa-envelope me-2" aria-hidden="true"></i>Email Address
+                </label>
+                <div class="invalid-feedback" id="email-error">
+                    Please enter a valid email address.
+                </div>
+            </div>
+
+            <div class="form-floating">
+                <input type="password" class="form-control" id="login-password" name="password"
+                       placeholder="Password" required aria-describedby="password-help">
+                <label for="login-password">
+                    <i class="fas fa-lock me-2" aria-hidden="true"></i>Password
+                </label>
+                <div class="invalid-feedback" id="password-error">
+                    Password is required.
+                </div>
+            </div>
+
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="rememberMe" name="remember">
+                <label class="form-check-label" for="rememberMe">Remember me</label>
+            </div>
+
+            <button type="submit" class="btn btn-login" id="login-submit-btn">
+                <span class="btn-text">
+                    <i class="fas fa-sign-in-alt me-2" aria-hidden="true"></i>Sign In
+                </span>
+                <span class="btn-loading" style="display: none;">
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Signing In...
+                </span>
+            </button>
+        </form>
+
+        <!-- Signup Form -->
+        <form id="signup-form" method="POST" style="display: none;" novalidate>
+            <input type="hidden" name="action" value="signup">
+            <div class="form-floating">
+                <input type="text" class="form-control" id="signup-name" name="name"
+                       placeholder="Full Name" required aria-describedby="name-help">
+                <label for="signup-name">
+                    <i class="fas fa-user me-2" aria-hidden="true"></i>Full Name
+                </label>
+                <div class="invalid-feedback" id="name-error">
+                    Name must be 2-50 characters long and contain only letters, spaces, and hyphens.
+                </div>
+            </div>
+
+            <div class="form-floating">
+                <input type="email" class="form-control" id="signup-email" name="email"
+                       placeholder="name@example.com" required aria-describedby="signup-email-help">
+                <label for="signup-email">
+                    <i class="fas fa-envelope me-2" aria-hidden="true"></i>Email Address
+                </label>
+                <div class="invalid-feedback" id="signup-email-error">
+                    Please enter a valid email address.
+                </div>
+            </div>
+
+            <div class="form-floating">
+                <input type="password" class="form-control" id="signup-password" name="password"
+                       placeholder="Password" required minlength="8" aria-describedby="signup-password-help">
+                <label for="signup-password">
+                    <i class="fas fa-lock me-2" aria-hidden="true"></i>Password
+                </label>
+                <div class="invalid-feedback" id="signup-password-error">
+                    Password must be at least 8 characters long and contain uppercase, lowercase, and numbers.
+                </div>
+            </div>
+
+            <div class="form-floating">
+                <input type="password" class="form-control" id="confirm-password"
+                       placeholder="Confirm Password" required minlength="8" aria-describedby="confirm-password-help">
+                <label for="confirm-password">
+                    <i class="fas fa-lock me-2" aria-hidden="true"></i>Confirm Password
+                </label>
+                <div class="invalid-feedback" id="confirm-password-error">
+                    Passwords do not match.
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-login" id="signup-submit-btn">
+                <span class="btn-text">
+                    <i class="fas fa-user-plus me-2" aria-hidden="true"></i>Create Account
+                </span>
+                <span class="btn-loading" style="display: none;">
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Creating Account...
+                </span>
+            </button>
+        </form>
+
+        <div class="social-login">
+            <p class="mb-3">Or continue with</p>
+            <a href="#" class="social-btn google" aria-label="Continue with Google">
+                <i class="fab fa-google" aria-hidden="true"></i>
+            </a>
+            <a href="#" class="social-btn facebook" aria-label="Continue with Facebook">
+                <i class="fab fa-facebook-f" aria-hidden="true"></i>
+            </a>
+            <a href="#" class="social-btn twitter" aria-label="Continue with Twitter">
+                <i class="fab fa-twitter" aria-hidden="true"></i>
+            </a>
+        </div>
+
+        <div class="register-link">
+            <p id="toggle-text">Don't have an account? <a href="#" id="toggle-link" aria-label="Switch to signup form">Create one here</a></p>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Form elements
             const loginForm = document.getElementById('login-form');
             const signupForm = document.getElementById('signup-form');
             const toggleLink = document.getElementById('toggle-link');
             const toggleText = document.getElementById('toggle-text');
             const formTitle = document.getElementById('form-title');
             const formSubtitle = document.getElementById('form-subtitle');
+            const loadingOverlay = document.getElementById('loading-overlay');
+
+            // Login form elements
+            const loginEmail = document.getElementById('login-email');
+            const loginPassword = document.getElementById('login-password');
+            const loginSubmitBtn = document.getElementById('login-submit-btn');
+
+            // Signup form elements
+            const signupName = document.getElementById('signup-name');
+            const signupEmail = document.getElementById('signup-email');
             const signupPassword = document.getElementById('signup-password');
             const confirmPassword = document.getElementById('confirm-password');
+            const signupSubmitBtn = document.getElementById('signup-submit-btn');
 
             let isLogin = true;
 
+            // Form toggle functionality
             toggleLink.addEventListener('click', function(e) {
                 e.preventDefault();
                 isLogin = !isLogin;
@@ -327,53 +399,186 @@
                     signupForm.style.display = 'none';
                     formTitle.textContent = 'Welcome Back';
                     formSubtitle.textContent = 'Sign in to access your medical dashboard';
-                    toggleText.innerHTML = 'Don\'t have an account? <a href="#" id="toggle-link">Create one here</a>';
+                    toggleText.innerHTML = 'Don\'t have an account? <a href="#" id="toggle-link" aria-label="Switch to signup form">Create one here</a>';
+                    // Reset login form
+                    resetForm(loginForm);
                 } else {
                     loginForm.style.display = 'none';
                     signupForm.style.display = 'block';
                     formTitle.textContent = 'Create Account';
                     formSubtitle.textContent = 'Join our medical community';
-                    toggleText.innerHTML = 'Already have an account? <a href="#" id="toggle-link">Sign in here</a>';
+                    toggleText.innerHTML = 'Already have an account? <a href="#" id="toggle-link" aria-label="Switch to login form">Sign in here</a>';
+                    // Reset signup form
+                    resetForm(signupForm);
                 }
             });
 
-            // Password confirmation validation
+            // Form submission handlers
+            loginForm.addEventListener('submit', function(e) {
+                if (!validateLoginForm()) {
+                    e.preventDefault();
+                    return false;
+                }
+                showLoading(loginSubmitBtn, 'Signing In...');
+            });
+
             signupForm.addEventListener('submit', function(e) {
-                if (signupPassword.value !== confirmPassword.value) {
+                if (!validateSignupForm()) {
                     e.preventDefault();
-                    alert('Passwords do not match. Please try again.');
-                    confirmPassword.focus();
                     return false;
                 }
-
-                if (signupPassword.value.length < 6) {
-                    e.preventDefault();
-                    alert('Password must be at least 6 characters long.');
-                    signupPassword.focus();
-                    return false;
-                }
+                showLoading(signupSubmitBtn, 'Creating Account...');
             });
 
-            // Real-time password match validation
-            confirmPassword.addEventListener('input', function() {
-                if (signupPassword.value !== confirmPassword.value) {
-                    confirmPassword.style.borderColor = '#dc3545';
-                    confirmPassword.style.boxShadow = '0 0 0 0.2rem rgba(220, 53, 69, 0.25)';
+            // Real-time validation
+            setupRealTimeValidation();
+
+            // Utility functions
+            function validateLoginForm() {
+                let isValid = true;
+
+                // Email validation
+                if (!isValidEmail(loginEmail.value.trim())) {
+                    showError(loginEmail, 'Please enter a valid email address.');
+                    isValid = false;
                 } else {
-                    confirmPassword.style.borderColor = '#28a745';
-                    confirmPassword.style.boxShadow = '0 0 0 0.2rem rgba(40, 167, 69, 0.25)';
+                    clearError(loginEmail);
                 }
-            });
 
-            signupPassword.addEventListener('input', function() {
-                if (confirmPassword.value && signupPassword.value !== confirmPassword.value) {
-                    confirmPassword.style.borderColor = '#dc3545';
-                    confirmPassword.style.boxShadow = '0 0 0 0.2rem rgba(220, 53, 69, 0.25)';
-                } else if (confirmPassword.value && signupPassword.value === confirmPassword.value) {
-                    confirmPassword.style.borderColor = '#28a745';
-                    confirmPassword.style.boxShadow = '0 0 0 0.2rem rgba(40, 167, 69, 0.25)';
+                // Password validation
+                if (!loginPassword.value.trim()) {
+                    showError(loginPassword, 'Password is required.');
+                    isValid = false;
+                } else {
+                    clearError(loginPassword);
                 }
-            });
+
+                return isValid;
+            }
+
+            function validateSignupForm() {
+                let isValid = true;
+
+                // Name validation
+                if (!isValidName(signupName.value.trim())) {
+                    showError(signupName, 'Name must be 2-50 characters long and contain only letters, spaces, and hyphens.');
+                    isValid = false;
+                } else {
+                    clearError(signupName);
+                }
+
+                // Email validation
+                if (!isValidEmail(signupEmail.value.trim())) {
+                    showError(signupEmail, 'Please enter a valid email address.');
+                    isValid = false;
+                } else {
+                    clearError(signupEmail);
+                }
+
+                // Password validation
+                if (!isValidPassword(signupPassword.value)) {
+                    showError(signupPassword, 'Password must be at least 8 characters long and contain uppercase, lowercase, and numbers.');
+                    isValid = false;
+                } else {
+                    clearError(signupPassword);
+                }
+
+                // Confirm password validation
+                if (signupPassword.value !== confirmPassword.value) {
+                    showError(confirmPassword, 'Passwords do not match.');
+                    isValid = false;
+                } else {
+                    clearError(confirmPassword);
+                }
+
+                return isValid;
+            }
+
+            function setupRealTimeValidation() {
+                // Password confirmation real-time validation
+                confirmPassword.addEventListener('input', function() {
+                    if (signupPassword.value && confirmPassword.value) {
+                        if (signupPassword.value === confirmPassword.value) {
+                            confirmPassword.classList.remove('is-invalid');
+                            confirmPassword.classList.add('is-valid');
+                        } else {
+                            confirmPassword.classList.remove('is-valid');
+                            confirmPassword.classList.add('is-invalid');
+                        }
+                    }
+                });
+
+                signupPassword.addEventListener('input', function() {
+                    if (confirmPassword.value) {
+                        if (signupPassword.value === confirmPassword.value) {
+                            confirmPassword.classList.remove('is-invalid');
+                            confirmPassword.classList.add('is-valid');
+                        } else {
+                            confirmPassword.classList.remove('is-valid');
+                            confirmPassword.classList.add('is-invalid');
+                        }
+                    }
+                });
+            }
+
+            function showError(input, message) {
+                input.classList.add('is-invalid');
+                const errorDiv = input.parentNode.querySelector('.invalid-feedback');
+                if (errorDiv) {
+                    errorDiv.textContent = message;
+                }
+            }
+
+            function clearError(input) {
+                input.classList.remove('is-invalid');
+                input.classList.add('is-valid');
+            }
+
+            function resetForm(form) {
+                form.reset();
+                form.querySelectorAll('.is-invalid, .is-valid').forEach(el => {
+                    el.classList.remove('is-invalid', 'is-valid');
+                });
+            }
+
+            function showLoading(button, message) {
+                const btnText = button.querySelector('.btn-text');
+                const btnLoading = button.querySelector('.btn-loading');
+
+                btnText.style.display = 'none';
+                btnLoading.style.display = 'inline-block';
+                button.disabled = true;
+
+                // Show loading overlay
+                loadingOverlay.classList.add('show');
+            }
+
+            // Validation helper functions
+            function isValidEmail(email) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return emailRegex.test(email);
+            }
+
+            function isValidName(name) {
+                if (name.length < 2 || name.length > 50) return false;
+                const nameRegex = /^[a-zA-Z\s\-']+$/;
+                return nameRegex.test(name);
+            }
+
+            function isValidPassword(password) {
+                if (password.length < 8) return false;
+                const hasUpper = /[A-Z]/.test(password);
+                const hasLower = /[a-z]/.test(password);
+                const hasDigit = /\d/.test(password);
+                return hasUpper && hasLower && hasDigit;
+            }
+
+            // Handle form submission errors (if any)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('error')) {
+                // Error handling can be enhanced here
+                console.log('Form submission error detected');
+            }
         });
     </script>
 </body>
