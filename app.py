@@ -5,12 +5,17 @@ Main application factory and configuration
 
 import os
 import sys
-from flask import Flask
+from flask import Flask, request, g
 from flask_cors import CORS
 from flask_login import LoginManager
 from flask_pymongo import PyMongo
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_wtf.csrf import CSRFProtect
 from config import get_config
 from utils.logger import setup_logger
+from database import init_db
+from database import init_db
 
 # Initialize extensions
 login_manager = LoginManager()
@@ -35,7 +40,19 @@ def create_app(config_name=None):
     # Initialize extensions
     CORS(app, origins=app.config['CORS_ORIGINS'])
     login_manager.init_app(app)
-    mongo.init_app(app)
+    mongo = init_db(app)
+
+    # Initialize rate limiter
+    limiter = Limiter(
+        get_remote_address,
+        app=app,
+        default_limits=[app.config['RATELIMIT_DEFAULT']],
+        storage_uri=app.config['RATELIMIT_STORAGE_URL'],
+        strategy=app.config['RATELIMIT_STRATEGY']
+    )
+
+    # Initialize CSRF protection
+    csrf = CSRFProtect(app)
 
     # Configure login manager
     login_manager.login_view = app.config['LOGIN_VIEW']
@@ -91,6 +108,34 @@ def create_app(config_name=None):
         from flask import render_template, flash, redirect, url_for
         flash('You do not have permission to access this resource.', 'error')
         return redirect(url_for('main.home'))
+
+    @app.errorhandler(429)
+    def ratelimit_error(error):
+        """Handle rate limiting errors"""
+        from flask import jsonify, render_template
+        app.logger.warning(f"Rate limit exceeded: {error}")
+        if request.is_json or request.path.startswith('/api/'):
+            return jsonify({'error': 'Too many requests. Please try again later.'}), 429
+        else:
+            return render_template('429.html'), 429
+
+    @app.errorhandler(400)
+    def bad_request_error(error):
+        """Handle 400 errors"""
+        from flask import render_template, jsonify
+        app.logger.warning(f"400 error: {error}")
+        if request.is_json or request.path.startswith('/api/'):
+            return jsonify({'error': 'Bad request'}), 400
+        return render_template('400.html'), 400
+
+    @app.errorhandler(422)
+    def unprocessable_entity_error(error):
+        """Handle 422 errors (validation errors)"""
+        from flask import jsonify, render_template
+        app.logger.warning(f"422 error: {error}")
+        if request.is_json or request.path.startswith('/api/'):
+            return jsonify({'error': 'Unprocessable entity'}), 422
+        return render_template('422.html'), 422
 
     # Health check endpoint
     @app.route('/health')

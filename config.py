@@ -36,7 +36,26 @@ class Config:
     # Logging Configuration
     LOG_LEVEL = 'INFO'
     LOG_FILE = 'app.log'
-    LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s'
+
+    # Rate Limiting Configuration
+    RATELIMIT_DEFAULT = "100 per hour"
+    RATELIMIT_STORAGE_URL = "memory://"
+    RATELIMIT_STRATEGY = "fixed-window"
+
+    # CSRF Protection Configuration
+    WTF_CSRF_ENABLED = True
+    WTF_CSRF_SECRET_KEY = os.environ.get('WTF_CSRF_SECRET_KEY') or 'csrf-secret-key-change-in-production'
+    WTF_CSRF_TIME_LIMIT = 3600  # 1 hour
+
+    # Security Headers
+    SECURITY_HEADERS = {
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'SAMEORIGIN',
+        'X-XSS-Protection': '1; mode=block',
+        'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+        'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
+    }
 
 class DevelopmentConfig(Config):
     """Development configuration"""

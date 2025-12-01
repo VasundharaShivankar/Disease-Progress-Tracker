@@ -10,7 +10,9 @@ import matplotlib.pyplot as plt
 import time
 import uuid
 from datetime import datetime
-
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from database import mongo
 from models import AnalysisResult, FileUpload
 from utils.logger import get_request_logger, log_request, log_error, log_model_prediction, log_file_upload
 from utils.validators import validate_file_upload

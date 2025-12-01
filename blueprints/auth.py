@@ -1,11 +1,15 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from flask_login import login_user, login_required, logout_user, current_user
+from flask_wtf.csrf import generate_csrf
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
-from .. import mongo
-from ..models import User
-from ..utils.logger import get_request_logger, log_request, log_error
-from ..utils.validators import validate_email, validate_password, validate_name
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from app import mongo
+from models import User
+from utils.logger import get_request_logger, log_request, log_error
+from utils.validators import validate_email, validate_password, validate_name
 import re
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
