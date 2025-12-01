@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app
 from flask_login import login_user, login_required, logout_user, current_user
 from flask_wtf.csrf import generate_csrf
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -6,7 +6,6 @@ from datetime import datetime
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from app import mongo
 from models import User
 from utils.logger import get_request_logger, log_request, log_error
 from utils.validators import validate_email, validate_password, validate_name
@@ -38,7 +37,7 @@ def login():
 
             if action == 'login':
                 # Login logic
-                user_data = mongo.db.users.find_one({'email': email.lower()})
+                user_data = current_app.mongo.db.users.find_one({'email': email.lower()})
                 if user_data and check_password_hash(user_data['password_hash'], password):
                     user = User(
                         id=str(user_data['_id']),
@@ -73,7 +72,7 @@ def login():
                     return render_template('login.html')
 
                 # Check if user exists
-                existing_user = mongo.db.users.find_one({'email': email.lower()})
+                existing_user = current_app.mongo.db.users.find_one({'email': email.lower()})
                 if existing_user:
                     flash('Email already registered.', 'error')
                     return render_template('login.html')
@@ -88,7 +87,7 @@ def login():
                     'last_login': datetime.utcnow()
                 }
 
-                result = mongo.db.users.insert_one(user_doc)
+                result = current_app.mongo.db.users.insert_one(user_doc)
                 user = User(
                     id=str(result.inserted_id),
                     email=email,
@@ -127,7 +126,7 @@ def logout():
 def profile():
     """User profile page"""
     try:
-        user_data = mongo.db.users.find_one({'_id': current_user.id})
+        user_data = current_app.mongo.db.users.find_one({'_id': current_user.id})
         if not user_data:
             flash('User not found.', 'error')
             return redirect(url_for('main.home'))
