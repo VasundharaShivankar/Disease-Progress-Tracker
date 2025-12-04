@@ -58,44 +58,72 @@ const SkinAnalysis = () => {
         🔍 Predict
       </button>
 
-      {result && (
-        <div className="result-container">
-          {result.error ? (
-            <p className="error-text">{result.error}</p>
-          ) : (
-            <>
-              <div className="prediction-box">
-                <p className="prediction-title">🚨 Prediction:</p>
-                <p className="prediction-label">{result.prediction}</p>
-              </div>
+              {result && (
+                <div className="mt-5">
+                  {result.error ? (
+                    <div className="alert alert-danger text-center">
+                      <span style={{ fontSize: '2rem' }}>❌</span>
+                      <h5 className="mt-2">Analysis Failed</h5>
+                      <p className="mb-0">{result.error}</p>
+                    </div>
+                  ) : (
+                    <div className="row g-4">
+                      <div className="col-12">
+                        <div className="card border-0 shadow-sm">
+                          <div className="card-body text-center p-4">
+                            <span style={{ fontSize: '3rem', color: '#FF6B6B' }}>🚨</span>
+                            <h4 className="mt-3 fw-bold">Analysis Result</h4>
+                            <div className="bg-light p-3 rounded mt-3">
+                              <h5 className="text-primary mb-0">{result.prediction}</h5>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
 
-              <div className="explanation-box">
-                <p className="section-title">🧾 Explanation:</p>
-                <p>{result.explanation}</p>
-              </div>
+                      <div className="col-md-6">
+                        <div className="card h-100 border-0 shadow-sm">
+                          <div className="card-body">
+                            <span style={{ fontSize: '2rem', color: '#4ECDC4' }}>🧾</span>
+                            <h5 className="card-title mt-2 fw-bold">Explanation</h5>
+                            <p className="card-text text-muted">{result.explanation}</p>
+                          </div>
+                        </div>
+                      </div>
 
-              {result.tips?.length > 0 && (
-                <div className="tips-box">
-                  <p className="section-title">🩺 Health Tips:</p>
-                  <ul>
-                    {result.tips.map((tip, idx) => (
-                      <li key={idx}>✅ {tip}</li>
-                    ))}
-                  </ul>
+                      {result.tips?.length > 0 && (
+                        <div className="col-md-6">
+                          <div className="card h-100 border-0 shadow-sm">
+                            <div className="card-body">
+                              <span style={{ fontSize: '2rem', color: '#667eea' }}>🩺</span>
+                              <h5 className="card-title mt-2 fw-bold">Health Tips</h5>
+                              <ul className="list-unstyled">
+                                {result.tips.map((tip, idx) => (
+                                  <li key={idx} className="mb-2">
+                                    <span style={{ color: '#28a745' }}>✅</span> {tip}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {result.advice && (
+                        <div className="col-12">
+                          <div className="card border-0 shadow-sm">
+                            <div className="card-body">
+                              <span style={{ fontSize: '2rem', color: '#FF6B6B' }}>📌</span>
+                              <h5 className="card-title mt-2 fw-bold">Medical Advice</h5>
+                              <p className="card-text text-muted">{result.advice}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
-
-              {result.advice && (
-                <div className="advice-box">
-                  <p className="section-title">📌 Advice:</p>
-                  <p>{result.advice}</p>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      )}
-    </div>
+            </div>
   );
 }
 

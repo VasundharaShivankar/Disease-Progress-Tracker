@@ -6,28 +6,31 @@ const Navbar = () => {
   const location = useLocation();
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav className="navbar navbar-expand-lg navbar-light">
       <div className="container-fluid">
-        <Link className="navbar-brand" to="/">HEALTH PLUS</Link>
-        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <Link className="navbar-brand d-flex align-items-center" to="/">
+          <span className="fw-bold fs-4" style={{ color: '#FF6B6B' }}>🏥</span>
+          <span className="ms-2 fw-bold text-dark">Health Plus</span>
+        </Link>
+        <button className="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav">
+          <ul className="navbar-nav ms-auto">
             <li className="nav-item">
-              <Link className={`nav-link ${location.pathname === '/' ? 'active' : ''}`} to="/">Home</Link>
+              <Link className={`nav-link fw-semibold ${location.pathname === '/' ? 'text-primary' : 'text-dark'}`} to="/">🏠 Home</Link>
             </li>
             <li className="nav-item">
-              <Link className={`nav-link ${location.pathname === '/login' ? 'active' : ''}`} to="/login">Login</Link>
+              <Link className={`nav-link fw-semibold ${location.pathname === '/login' ? 'text-primary' : 'text-dark'}`} to="/login">🔐 Login</Link>
             </li>
             <li className="nav-item">
-              <Link className={`nav-link ${location.pathname === '/progress-tracker' ? 'active' : ''}`} to="/progress-tracker">Progress Tracker</Link>
+              <Link className={`nav-link fw-semibold ${location.pathname === '/progress-tracker' ? 'text-primary' : 'text-dark'}`} to="/progress-tracker">📊 Progress Tracker</Link>
             </li>
             <li className="nav-item">
-              <Link className={`nav-link ${location.pathname === '/skin-analysis' ? 'active' : ''}`} to="/skin-analysis">Skin Analysis</Link>
+              <Link className={`nav-link fw-semibold ${location.pathname === '/skin-analysis' ? 'text-primary' : 'text-dark'}`} to="/skin-analysis">🩺 Skin Analysis</Link>
             </li>
             <li className="nav-item">
-              <Link className={`nav-link ${location.pathname === '/spin-analysis' ? 'active' : ''}`} to="/spin-analysis">Spine Analysis</Link>
+              <Link className={`nav-link fw-semibold ${location.pathname === '/spin-analysis' ? 'text-primary' : 'text-dark'}`} to="/spin-analysis">🦴 Spine Analysis</Link>
             </li>
           </ul>
         </div>
