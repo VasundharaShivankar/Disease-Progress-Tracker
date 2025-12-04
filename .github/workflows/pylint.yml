@@ -1,9 +1,9 @@
-name: Pylint
+name: Code Quality Check
 
 on: [push]
 
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
     strategy:
       matrix:
